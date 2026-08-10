@@ -1,6 +1,40 @@
 {
   "cases": [
     {
+      "caseNumber": "TEST",
+      "title": "TEST",
+      "court": "TEST",
+      "filingDate": "2026-08-10",
+      "caseType": "Civil Suit",
+      "judge": "TEST",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "parties": [
+        {
+          "id": "7dd5adca-78a7-4d7e-9f93-af4e287a96f0",
+          "name": "TEST",
+          "role": "Plaintiff"
+        },
+        {
+          "id": "b3d8a8cc-7a60-4d74-8987-cf0a58ebe00f",
+          "name": "TEST",
+          "role": "Defendant"
+        }
+      ],
+      "id": "9b5f4e15-6557-4082-8ade-2ea995e7ad15",
+      "timeline": [
+        {
+          "id": "69141070-0c94-4189-a89e-154464d3f9ad",
+          "title": "Case Filed",
+          "date": "2026-08-10",
+          "description": "Case has been filed in TEST.",
+          "type": "filed"
+        }
+      ],
+      "lastUpdated": "2026-08-10T18:15:01.927Z"
+    },
+    {
       "id": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
       "caseNumber": "123/2025",
       "title": "Ali Khan vs Ahmed & Co.",

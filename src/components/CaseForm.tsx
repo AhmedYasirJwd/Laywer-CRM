@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import type { CaseStatus, LegalCase, Priority, PartyRole } from "@/lib/types";
+import { Autocomplete } from "./Autocomplete";
+import { KARACHI_COURTS } from "@/lib/karachi-courts";
 
 const CASE_TYPES = ["Civil Suit", "Criminal Appeal", "Writ Petition", "Bail Application", "Rent Case", "Family Suit"];
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
@@ -158,12 +160,12 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
             />
           </Field>
           <Field label="Court">
-            <input
+            <Autocomplete
               required
-              className={inputClass}
-              placeholder="City Court, Karachi"
+              placeholder="Start typing to search Karachi courts..."
               value={form.court}
-              onChange={(e) => set("court", e.target.value)}
+              onChange={(v) => set("court", v)}
+              options={KARACHI_COURTS}
             />
           </Field>
           <Field label="Judge">

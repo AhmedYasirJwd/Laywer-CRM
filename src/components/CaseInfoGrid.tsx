@@ -1,8 +1,8 @@
-import { Hash, Calendar, FolderOpen, Landmark, Scale, Layers, Flag, Star, Clock } from "lucide-react";
+import { Hash, Calendar, FolderOpen, Landmark, Scale, Layers, Flag, CalendarClock, CalendarCheck2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { LegalCase } from "@/lib/types";
+import type { Hearing, LegalCase } from "@/lib/types";
 import { formatDate, formatDateTime } from "@/lib/format";
-import { StatusBadge, PriorityBadge } from "./Badge";
+import { StatusBadge } from "./Badge";
 
 function InfoRow({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: React.ReactNode }) {
   return (
@@ -16,7 +16,15 @@ function InfoRow({ icon: Icon, label, children }: { icon: LucideIcon; label: str
   );
 }
 
-export function CaseInfoGrid({ item }: { item: LegalCase }) {
+export function CaseInfoGrid({
+  item,
+  lastHearing,
+  nextHearing,
+}: {
+  item: LegalCase;
+  lastHearing?: Hearing;
+  nextHearing?: Hearing;
+}) {
   return (
     <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
       <InfoRow icon={Hash} label="Case Number">
@@ -40,11 +48,11 @@ export function CaseInfoGrid({ item }: { item: LegalCase }) {
       <InfoRow icon={Flag} label="Status">
         <StatusBadge status={item.status} />
       </InfoRow>
-      <InfoRow icon={Star} label="Priority">
-        <PriorityBadge priority={item.priority} />
+      <InfoRow icon={CalendarCheck2} label="Last Hearing">
+        {lastHearing ? formatDateTime(lastHearing.date) : "—"}
       </InfoRow>
-      <InfoRow icon={Clock} label="Last Updated">
-        {formatDateTime(item.lastUpdated)}
+      <InfoRow icon={CalendarClock} label="Next Hearing">
+        {nextHearing ? formatDateTime(nextHearing.date) : "—"}
       </InfoRow>
     </div>
   );

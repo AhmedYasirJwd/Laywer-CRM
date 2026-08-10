@@ -27,7 +27,7 @@ export function CaseTable({
             {variant === "compact" && <th className="px-3 py-2.5">Case Stage</th>}
             <th className="px-3 py-2.5">Last Hearing</th>
             <th className="px-3 py-2.5">Next Hearing</th>
-            {variant === "full" && <th className="px-3 py-2.5">Last Updated</th>}
+            {variant === "full" && <th className="px-3 py-2.5">Stage</th>}
           </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@ export function CaseTable({
                   {next ? formatDate(next.date) : "—"}
                 </td>
                 {variant === "full" && (
-                  <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{formatDate(c.lastUpdated)}</td>
+                  <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{c.stage}</td>
                 )}
               </tr> 
             );

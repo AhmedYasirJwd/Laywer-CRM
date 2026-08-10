@@ -25,7 +25,11 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
   const upcoming = [...hearings]
     .filter((h) => new Date(h.date).getTime() >= Date.now())
     .sort((a, b) => a.date.localeCompare(b.date));
+  const past = [...hearings]
+    .filter((h) => new Date(h.date).getTime() < Date.now())
+    .sort((a, b) => b.date.localeCompare(a.date));
   const nextHearing = upcoming[0];
+  const lastHearing = past[0];
 
   const hearingTimelineEvents: TimelineEvent[] = hearings.map((h) => ({
     id: h.id,
@@ -92,7 +96,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
       <div className="space-y-4">
         <SectionCard title="Case Information" collapsible defaultOpen>
-          <CaseInfoGrid item={item} />
+          <CaseInfoGrid item={item} lastHearing={lastHearing} nextHearing={nextHearing} />
         </SectionCard>
 
         <SectionCard title="Parties" collapsible defaultOpen>
