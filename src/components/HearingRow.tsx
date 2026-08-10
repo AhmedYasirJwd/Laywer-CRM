@@ -1,0 +1,40 @@
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import type { Hearing, LegalCase } from "@/lib/types";
+import { caseCode, dayNumber, monthShort, formatTime, relativeDayLabel } from "@/lib/format";
+
+export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase?: LegalCase }) {
+  const label = relativeDayLabel(hearing.date);
+  const isToday = label === "Today";
+
+  return (
+    <Link
+      href={legalCase ? `/cases/${legalCase.id}` : "#"}
+      className="flex items-center gap-3 border-b border-line py-3 last:border-b-0 last:pb-0 first:pt-0"
+    >
+      <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+        <span className="text-[10px] font-medium leading-none">{monthShort(hearing.date)}</span>
+        <span className="text-base font-bold leading-tight">{dayNumber(hearing.date)}</span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-ink">
+          {legalCase ? `${caseCode(legalCase.caseType)} #${legalCase.caseNumber}` : "Hearing"}
+        </p>
+        <p className="truncate text-xs text-muted">
+          {legalCase?.title ?? hearing.purpose} · {legalCase?.court ?? hearing.court}
+        </p>
+      </div>
+      <div className="flex shrink-0 flex-col items-end gap-1">
+        <span className="text-xs font-medium text-ink">{formatTime(hearing.date)}</span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+            isToday ? "bg-brand-100 text-brand-700" : "bg-slate-100 text-muted"
+          }`}
+        >
+          {label}
+        </span>
+      </div>
+      <ChevronRight size={16} className="shrink-0 text-faint" />
+    </Link>
+  );
+}

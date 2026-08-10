@@ -1,0 +1,1377 @@
+{
+  "cases": [
+    {
+      "id": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
+      "caseNumber": "123/2025",
+      "title": "Ali Khan vs Ahmed & Co.",
+      "court": "City Court, Karachi",
+      "filingDate": "2025-01-10",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Evidence",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-07-30T04:00:00.000Z",
+      "parties": [
+        {
+          "id": "8662de0d-ebc7-4733-a614-a9cfe7052a2d",
+          "name": "Ali Khan",
+          "role": "Plaintiff",
+          "phone": "0300-1234567",
+          "email": "alikhan@gmail.com"
+        },
+        {
+          "id": "490d2d5b-6b9f-4452-8dd2-868dac645eed",
+          "name": "Ahmed & Co.",
+          "role": "Defendant",
+          "phone": "021-3456789",
+          "email": "info@ahmedco.com"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "8b552aaf-434d-405c-8fd1-6e1bc4647a90",
+          "title": "Case Filed",
+          "date": "2025-01-10",
+          "description": "Case has been filed in City Court, Karachi.",
+          "type": "filed"
+        },
+        {
+          "id": "b3eec702-8c4e-4c70-871e-c65225e78299",
+          "title": "Written Statement",
+          "date": "2025-02-25",
+          "description": "Defendant has submitted written statement.",
+          "type": "statement"
+        },
+        {
+          "id": "2c880740-28ae-479c-b6c2-23fde6db284f",
+          "title": "Issues Framed",
+          "date": "2025-03-15",
+          "description": "Court has framed issues for trial.",
+          "type": "issues"
+        },
+        {
+          "id": "b8fc4744-d788-4736-a54c-6a17813ccab4",
+          "title": "Evidence Started",
+          "date": "2025-05-05",
+          "description": "Plaintiff evidence has started.",
+          "type": "evidence"
+        }
+      ]
+    },
+    {
+      "id": "2a121484-0e75-4f9f-b8c6-db741efba216",
+      "caseNumber": "45/25",
+      "title": "State vs Muhammad Raza",
+      "court": "High Court, Karachi",
+      "filingDate": "2025-02-02",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice S. Baloch",
+      "stage": "Arguments",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-08-01T04:00:00.000Z",
+      "parties": [
+        {
+          "id": "fdfe3da3-bc04-46e9-af7b-b9ad620f5023",
+          "name": "State",
+          "role": "Petitioner"
+        },
+        {
+          "id": "9afdb9e3-0fa8-4a79-be98-e9b379296596",
+          "name": "Muhammad Raza",
+          "role": "Respondent",
+          "phone": "0322-9988776"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "b231ba93-a2b2-4a60-87f3-1872591f95fc",
+          "title": "Appeal Filed",
+          "date": "2025-02-02",
+          "description": "Criminal appeal filed in High Court, Karachi.",
+          "type": "filed"
+        },
+        {
+          "id": "d5c3beab-78a5-4c6c-804d-a92f75a6bf48",
+          "title": "Notice Issued",
+          "date": "2025-02-20",
+          "description": "Notice issued to respondent.",
+          "type": "order"
+        },
+        {
+          "id": "7ac61979-8d27-40c8-aeec-6b14bfe4e2e5",
+          "title": "Arguments Started",
+          "date": "2025-06-10",
+          "description": "Counsel for appellant began arguments.",
+          "type": "hearing"
+        }
+      ]
+    },
+    {
+      "id": "b25f715d-afb9-4447-bc3d-2157a6709974",
+      "caseNumber": "789/26",
+      "title": "XYZ Pvt Ltd vs State of Sindh",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-03-18",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice F. Rehman",
+      "stage": "Hearing",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-31T04:00:00.000Z",
+      "parties": [
+        {
+          "id": "2e6e7627-1f39-4b2f-a9ca-039bf9ead6af",
+          "name": "XYZ Pvt Ltd",
+          "role": "Petitioner",
+          "email": "legal@xyzpvt.com"
+        },
+        {
+          "id": "aea69a5e-9c36-4d16-8c28-11a946b66543",
+          "name": "State of Sindh",
+          "role": "Respondent"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "7a4dba6b-d61a-4496-857a-8d75f6c2bcda",
+          "title": "Petition Filed",
+          "date": "2026-03-18",
+          "description": "Writ petition filed in High Court, Karachi.",
+          "type": "filed"
+        },
+        {
+          "id": "ee6a61d9-a674-4fa4-ad68-9e693b2d7c79",
+          "title": "Interim Order",
+          "date": "2026-04-02",
+          "description": "Court granted interim relief pending hearing.",
+          "type": "order"
+        }
+      ]
+    },
+    {
+      "id": "e291e101-411c-456d-a762-df1f4370c63f",
+      "caseNumber": "112/26",
+      "title": "Salman Ahmed (Bail)",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-06-01",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice K. Memon",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "High",
+      "lastUpdated": "2026-08-01T04:00:00.000Z",
+      "parties": [
+        {
+          "id": "68692504-3c08-4df8-a153-b5fa52ee2a38",
+          "name": "Salman Ahmed",
+          "role": "Petitioner",
+          "phone": "0333-1122334"
+        },
+        {
+          "id": "d86a495d-21ee-472d-9444-ef534c081aa9",
+          "name": "State",
+          "role": "Respondent"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "b62e3798-e679-4084-8cdc-078fc103a2af",
+          "title": "Application Filed",
+          "date": "2026-06-01",
+          "description": "Bail application filed in Sessions Court, Karachi.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "69d31d6f-3a4b-46ac-974e-4194e60affdf",
+      "caseNumber": "105/25",
+      "title": "Case Party 5 vs Respondent 5",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-07-08",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-28T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "65f2ccc5-6417-4e32-a231-16607ad0877d",
+          "title": "Case Filed",
+          "date": "2026-07-08",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "0be58811-3bb6-4a83-8a1a-6ea54490a7a7",
+      "caseNumber": "106/25",
+      "title": "Case Party 6 vs Respondent 6",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-07-03",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "High",
+      "lastUpdated": "2026-07-27T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "a77f1fd0-ef31-4fcb-ae53-61966dc679a5",
+          "title": "Case Filed",
+          "date": "2026-07-03",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "27694644-d434-434e-941e-731c4cffb055",
+      "caseNumber": "107/25",
+      "title": "Case Party 7 vs Respondent 7",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-06-28",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-26T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "9668c8f2-2f6c-4851-930e-88e48fbec030",
+          "title": "Case Filed",
+          "date": "2026-06-28",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "4653c08e-090e-4418-a85b-b6c3d286e5f4",
+      "caseNumber": "108/25",
+      "title": "Case Party 8 vs Respondent 8",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-06-23",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-25T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "c1188ba9-f17c-44ef-97f5-d7cce48173e5",
+          "title": "Case Filed",
+          "date": "2026-06-23",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "ce39198d-182a-44df-a536-e666572018a5",
+      "caseNumber": "109/25",
+      "title": "Case Party 9 vs Respondent 9",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-06-18",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-07-24T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "d4e59f4f-d718-41c8-8bc2-e697aa7c0939",
+          "title": "Case Filed",
+          "date": "2026-06-18",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "1a01986e-6b74-43ec-9702-e93e4634c4db",
+      "caseNumber": "110/25",
+      "title": "Case Party 10 vs Respondent 10",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-06-13",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-23T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "c85bec42-9bc6-4835-9094-1c2b62aea7f8",
+          "title": "Case Filed",
+          "date": "2026-06-13",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "7f2d0df1-4282-47a8-a4cd-f0f98ea23624",
+      "caseNumber": "111/25",
+      "title": "Case Party 11 vs Respondent 11",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-06-08",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Low",
+      "lastUpdated": "2026-07-22T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "757626c7-e70e-4f28-978d-a47eaaf9fe5d",
+          "title": "Case Filed",
+          "date": "2026-06-08",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "feee3fbb-98c5-45c7-a661-25c1852af509",
+      "caseNumber": "112/25",
+      "title": "Case Party 12 vs Respondent 12",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-06-03",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-07-21T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "fe7cfd78-4968-4655-a16f-5f6a2482ddc9",
+          "title": "Case Filed",
+          "date": "2026-06-03",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "d7268e45-6adf-45f1-8778-0649a200435c",
+      "caseNumber": "113/25",
+      "title": "Case Party 13 vs Respondent 13",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-05-29",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-20T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "6b05f71b-6b9a-464d-bf6b-a494c4c94d83",
+          "title": "Case Filed",
+          "date": "2026-05-29",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "ed1c77dc-9a28-41d3-9371-07a027f20c2b",
+      "caseNumber": "114/25",
+      "title": "Case Party 14 vs Respondent 14",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-05-24",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Low",
+      "lastUpdated": "2026-07-19T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "8b4dc14a-02e3-4200-b74b-8f94d962de1d",
+          "title": "Case Filed",
+          "date": "2026-05-24",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "4a84234e-248c-4c63-8f10-05601f973ae5",
+      "caseNumber": "115/25",
+      "title": "Case Party 15 vs Respondent 15",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-05-19",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "High",
+      "lastUpdated": "2026-07-18T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "9be50ffd-6332-4b78-822e-75ad434f437e",
+          "title": "Case Filed",
+          "date": "2026-05-19",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "5ffa7940-f2d6-4674-b2f3-9fe8ff2e4015",
+      "caseNumber": "116/25",
+      "title": "Case Party 16 vs Respondent 16",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-05-14",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-17T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "b7f48b37-f7a6-4a51-8b59-ce08d9366f43",
+          "title": "Case Filed",
+          "date": "2026-05-14",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "86659bda-6b29-4ead-a143-3eabb0184dc4",
+      "caseNumber": "117/25",
+      "title": "Case Party 17 vs Respondent 17",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-05-09",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-16T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "fbe26333-60ef-4669-8e7d-257ab51773d4",
+          "title": "Case Filed",
+          "date": "2026-05-09",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "25ac91f8-2a02-4b3d-bb9c-e9e992cb6c96",
+      "caseNumber": "118/25",
+      "title": "Case Party 18 vs Respondent 18",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-05-04",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "High",
+      "lastUpdated": "2026-07-15T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "caff7bdf-b6c1-40e6-99f7-54a55fec8a42",
+          "title": "Case Filed",
+          "date": "2026-05-04",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "d6ff0542-9bce-498b-9d8e-fbba8f42a70b",
+      "caseNumber": "119/25",
+      "title": "Case Party 19 vs Respondent 19",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-04-29",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-14T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "a40b3fc8-76cf-4114-b6ca-7bf216f3bac4",
+          "title": "Case Filed",
+          "date": "2026-04-29",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "45ad5fa4-76eb-4b2f-9606-2f29172d4ee2",
+      "caseNumber": "120/25",
+      "title": "Case Party 20 vs Respondent 20",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-04-24",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-13T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "44494a79-79a5-40b4-ace0-795b5cdea718",
+          "title": "Case Filed",
+          "date": "2026-04-24",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "0a3dc512-34e6-45de-a7f2-08fe14c80c06",
+      "caseNumber": "121/25",
+      "title": "Case Party 21 vs Respondent 21",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-04-19",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-07-12T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "c17a424b-7db9-4203-9055-53fc13887b95",
+          "title": "Case Filed",
+          "date": "2026-04-19",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "70694adb-8ff5-4b49-be6a-52870964aa1f",
+      "caseNumber": "122/25",
+      "title": "Case Party 22 vs Respondent 22",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-04-14",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-11T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "59aebb91-e4be-425e-81f3-cf3fcc7498e3",
+          "title": "Case Filed",
+          "date": "2026-04-14",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "ae622b5e-e5dd-4330-8707-9b46fb3a819f",
+      "caseNumber": "123/25",
+      "title": "Case Party 23 vs Respondent 23",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-04-09",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Low",
+      "lastUpdated": "2026-07-10T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "91bff74b-cd67-42e4-8c4f-e2297dce9368",
+          "title": "Case Filed",
+          "date": "2026-04-09",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "0ca6789d-ff3e-47da-9c8e-1b9ca497a863",
+      "caseNumber": "124/25",
+      "title": "Case Party 24 vs Respondent 24",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-04-04",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-07-09T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "2aaf0035-7147-4b83-a0a2-645b2e14c34d",
+          "title": "Case Filed",
+          "date": "2026-04-04",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "c5d69c6d-6d2b-424a-a95e-b5660af6029f",
+      "caseNumber": "125/25",
+      "title": "Case Party 25 vs Respondent 25",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-03-30",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-08T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "b87728d2-83fb-4328-8f1d-1e99acf06475",
+          "title": "Case Filed",
+          "date": "2026-03-30",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "b251729c-db97-4ef3-a955-3285cbb3f139",
+      "caseNumber": "126/25",
+      "title": "Case Party 26 vs Respondent 26",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-03-25",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Low",
+      "lastUpdated": "2026-07-07T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "09abe146-5ffb-400b-a585-548c02b5da35",
+          "title": "Case Filed",
+          "date": "2026-03-25",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "d649a883-4110-4f9c-a02a-17564552f728",
+      "caseNumber": "127/25",
+      "title": "Case Party 27 vs Respondent 27",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-03-20",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "High",
+      "lastUpdated": "2026-07-06T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "c82b30e1-0361-40e7-997c-be99032ede35",
+          "title": "Case Filed",
+          "date": "2026-03-20",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "ac626b36-d919-4224-aabf-5c6758c411a5",
+      "caseNumber": "128/25",
+      "title": "Case Party 28 vs Respondent 28",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-03-15",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-05T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "d3b9d73f-3b6f-4f37-afd7-d0b8a214853f",
+          "title": "Case Filed",
+          "date": "2026-03-15",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "e91836e1-e640-4f89-ac34-6ecd77cd2600",
+      "caseNumber": "129/25",
+      "title": "Case Party 29 vs Respondent 29",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-03-10",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-04T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "335fc87f-0d2a-4466-965e-5379c0b8cca9",
+          "title": "Case Filed",
+          "date": "2026-03-10",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "599a5366-506f-4bf6-84e2-6304b2630bf6",
+      "caseNumber": "130/25",
+      "title": "Case Party 30 vs Respondent 30",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-03-05",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "High",
+      "lastUpdated": "2026-07-03T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "e5a25b4a-f380-47bd-866c-a5c56f663838",
+          "title": "Case Filed",
+          "date": "2026-03-05",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "68155c49-6d88-4d2b-b8ad-8f3be0d6ca1f",
+      "caseNumber": "131/25",
+      "title": "Case Party 31 vs Respondent 31",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-02-28",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Medium",
+      "lastUpdated": "2026-07-02T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "b82d1582-85eb-4128-8ec1-ff5f9e71af81",
+          "title": "Case Filed",
+          "date": "2026-02-28",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "95b7b202-8894-41bc-8409-7451c283211a",
+      "caseNumber": "132/25",
+      "title": "Case Party 32 vs Respondent 32",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-02-23",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-07-01T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "79ebc070-8725-40e1-ac2f-f11e2794c86d",
+          "title": "Case Filed",
+          "date": "2026-02-23",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "ecf32773-1fb4-409a-a554-6680303521de",
+      "caseNumber": "133/25",
+      "title": "Case Party 33 vs Respondent 33",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-02-18",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-06-30T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "7310ca58-f3a2-4855-bb42-eee0c45c5220",
+          "title": "Case Filed",
+          "date": "2026-02-18",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "647f32ca-a70b-49fa-83d6-7f5600f81760",
+      "caseNumber": "134/25",
+      "title": "Case Party 34 vs Respondent 34",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-02-13",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Medium",
+      "lastUpdated": "2026-06-29T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "d9cad142-d0d6-4f6d-89bc-bcc7f62c5a0a",
+          "title": "Case Filed",
+          "date": "2026-02-13",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "b4e3b622-0a29-40a8-964b-518148ff64e8",
+      "caseNumber": "135/25",
+      "title": "Case Party 35 vs Respondent 35",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-02-08",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Low",
+      "lastUpdated": "2026-06-28T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "39bd52c3-ce5f-4cf3-8e9c-1d5bee33960a",
+          "title": "Case Filed",
+          "date": "2026-02-08",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "2f1ee672-1952-4e6e-8e74-67ed1c828a40",
+      "caseNumber": "136/25",
+      "title": "Case Party 36 vs Respondent 36",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-02-03",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-06-27T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "32c1bddb-c3b8-48f8-a925-3ce9b60fc355",
+          "title": "Case Filed",
+          "date": "2026-02-03",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "180da424-023a-4bda-96f9-1e02a0f2996a",
+      "caseNumber": "137/25",
+      "title": "Case Party 37 vs Respondent 37",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-01-29",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-06-26T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "cefe5833-498c-4cdb-8aae-f4015f909e03",
+          "title": "Case Filed",
+          "date": "2026-01-29",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "7c0c11a4-6570-431c-958c-5becd4f4576a",
+      "caseNumber": "138/25",
+      "title": "Case Party 38 vs Respondent 38",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-01-24",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Low",
+      "lastUpdated": "2026-06-25T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "b9b3ebdb-7168-4fb2-9b50-5c5228d5cd7d",
+          "title": "Case Filed",
+          "date": "2026-01-24",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "02640d7c-cbc5-42f0-976d-ab80696b6ea9",
+      "caseNumber": "139/25",
+      "title": "Case Party 39 vs Respondent 39",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2026-01-19",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "High",
+      "lastUpdated": "2026-06-24T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "c52edc42-e478-4f3b-8056-58377fcaf6b9",
+          "title": "Case Filed",
+          "date": "2026-01-19",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "3030f432-28a6-4b68-85cf-e4bc7259ffae",
+      "caseNumber": "140/25",
+      "title": "Case Party 40 vs Respondent 40",
+      "court": "City Court, Karachi",
+      "filingDate": "2026-01-14",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Medium",
+      "lastUpdated": "2026-06-23T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "a2280145-2282-4407-be17-f3469941a3e2",
+          "title": "Case Filed",
+          "date": "2026-01-14",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "fd68234d-8b7c-47b6-a674-f7cc15f24505",
+      "caseNumber": "141/25",
+      "title": "Case Party 41 vs Respondent 41",
+      "court": "High Court, Karachi",
+      "filingDate": "2026-01-09",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-06-22T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "2426b7c7-1da8-497d-8630-b54cdcaa54d8",
+          "title": "Case Filed",
+          "date": "2026-01-09",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "35da2028-cdd6-4ffe-b719-e535d808f2cc",
+      "caseNumber": "142/25",
+      "title": "Case Party 42 vs Respondent 42",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2026-01-04",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "High",
+      "lastUpdated": "2026-06-21T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "94b7d2b7-08db-4338-a155-180a2fcd2a65",
+          "title": "Case Filed",
+          "date": "2026-01-04",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "c22ee262-bd28-4376-8b56-5b31c319c204",
+      "caseNumber": "143/25",
+      "title": "Case Party 43 vs Respondent 43",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2025-12-30",
+      "caseType": "Criminal Appeal",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Medium",
+      "lastUpdated": "2026-06-20T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "279e8960-2e57-47c9-8f88-c0e18f586399",
+          "title": "Case Filed",
+          "date": "2025-12-30",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "f9853132-2f40-4c35-b8be-b298d2327681",
+      "caseNumber": "144/25",
+      "title": "Case Party 44 vs Respondent 44",
+      "court": "City Court, Karachi",
+      "filingDate": "2025-12-25",
+      "caseType": "Writ Petition",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "Low",
+      "lastUpdated": "2026-06-19T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "7cd93cfe-9349-4c2c-9d4e-659a632f5636",
+          "title": "Case Filed",
+          "date": "2025-12-25",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "fc64795a-1efa-40cc-b018-5666d7edad6a",
+      "caseNumber": "145/25",
+      "title": "Case Party 45 vs Respondent 45",
+      "court": "High Court, Karachi",
+      "filingDate": "2025-12-20",
+      "caseType": "Rent Case",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-06-18T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "7abdcbe9-0f54-486f-be8a-9bb72059d725",
+          "title": "Case Filed",
+          "date": "2025-12-20",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "5ff93755-c58e-4d87-8263-31e41646f35f",
+      "caseNumber": "146/25",
+      "title": "Case Party 46 vs Respondent 46",
+      "court": "Sessions Court, Karachi",
+      "filingDate": "2025-12-15",
+      "caseType": "Family Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Pending",
+      "priority": "Medium",
+      "lastUpdated": "2026-06-17T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "e0c3b289-61aa-45d7-992f-b4d51e49669d",
+          "title": "Case Filed",
+          "date": "2025-12-15",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "c0179848-0b63-4f75-93c8-60a5a343ded2",
+      "caseNumber": "147/25",
+      "title": "Case Party 47 vs Respondent 47",
+      "court": "Banking Court, Karachi",
+      "filingDate": "2025-12-10",
+      "caseType": "Bail Application",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Closed",
+      "priority": "Low",
+      "lastUpdated": "2026-06-16T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "ad47dde0-5d7c-4f68-960f-a7ac4db2ee68",
+          "title": "Case Filed",
+          "date": "2025-12-10",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    },
+    {
+      "id": "aa13b0e5-7b7d-440d-95e8-56f3988d904f",
+      "caseNumber": "148/25",
+      "title": "Case Party 48 vs Respondent 48",
+      "court": "City Court, Karachi",
+      "filingDate": "2025-12-05",
+      "caseType": "Civil Suit",
+      "judge": "Hon. Justice A. Qureshi",
+      "stage": "Filed",
+      "status": "Active",
+      "priority": "High",
+      "lastUpdated": "2026-06-15T04:00:00.000Z",
+      "parties": [],
+      "timeline": [
+        {
+          "id": "e7494c64-0e35-4b47-a3f4-7fdf9a2fff60",
+          "title": "Case Filed",
+          "date": "2025-12-05",
+          "description": "Case has been filed.",
+          "type": "filed"
+        }
+      ]
+    }
+  ],
+  "hearings": [
+    {
+      "id": "c8fa555b-8666-421b-b726-1eb181378a62",
+      "caseId": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
+      "date": "2026-08-02T06:00:00.000Z",
+      "purpose": "Cross examination of plaintiff witness",
+      "court": "City Court, Karachi",
+      "judge": "Hon. Justice A. Qureshi"
+    },
+    {
+      "id": "83e8ea66-edb7-4bf6-9c56-55d35de63faa",
+      "caseId": "2a121484-0e75-4f9f-b8c6-db741efba216",
+      "date": "2026-08-02T10:00:00.000Z",
+      "purpose": "Continuation of arguments",
+      "court": "High Court, Karachi",
+      "judge": "Hon. Justice S. Baloch"
+    },
+    {
+      "id": "0caf01d8-5c72-4502-a3df-17a4ff7fa6b1",
+      "caseId": "b25f715d-afb9-4447-bc3d-2157a6709974",
+      "date": "2026-08-04T05:30:00.000Z",
+      "purpose": "Hearing on maintainability",
+      "court": "High Court, Karachi",
+      "judge": "Hon. Justice F. Rehman"
+    },
+    {
+      "id": "ca0824b9-38af-4941-a526-a11ffd6d424d",
+      "caseId": "e291e101-411c-456d-a762-df1f4370c63f",
+      "date": "2026-08-07T04:30:00.000Z",
+      "purpose": "Bail hearing",
+      "court": "Sessions Court, Karachi",
+      "judge": "Hon. Justice K. Memon"
+    },
+    {
+      "id": "f7b92e11-7ddb-4e03-b5c4-1b8571636989",
+      "caseId": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
+      "date": "2026-08-16T06:00:00.000Z",
+      "purpose": "Continuation of evidence",
+      "court": "City Court, Karachi",
+      "judge": "Hon. Justice A. Qureshi"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "a6823cef-bb79-4eb1-903f-060f9e098780",
+      "caseId": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
+      "title": "Prepare cross-examination questions",
+      "dueDate": "2026-08-02",
+      "status": "Completed",
+      "priority": "High"
+    },
+    {
+      "id": "aa93a995-192b-41dc-be0d-7d469a8bdb12",
+      "caseId": "2a121484-0e75-4f9f-b8c6-db741efba216",
+      "title": "File written arguments",
+      "dueDate": "2026-08-03",
+      "status": "Completed",
+      "priority": "High"
+    },
+    {
+      "id": "6ee92612-1fe4-4d1e-95a2-f5de7432a201",
+      "caseId": "b25f715d-afb9-4447-bc3d-2157a6709974",
+      "title": "Draft rejoinder to State's reply",
+      "dueDate": "2026-08-05",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "f42d9672-c67a-44dc-a85e-ea6e0a4bb80e",
+      "caseId": "e291e101-411c-456d-a762-df1f4370c63f",
+      "title": "Collect surety documents",
+      "dueDate": "2026-08-04",
+      "status": "Pending",
+      "priority": "High"
+    },
+    {
+      "id": "b1f0b678-d94c-4dcb-a397-1671cc69a323",
+      "caseId": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
+      "title": "Share hearing notice with client",
+      "dueDate": "2026-08-01",
+      "status": "Pending",
+      "priority": "Low"
+    },
+    {
+      "id": "09d67623-bf7e-4b81-abd4-fd31222d095c",
+      "title": "Renew bar council membership",
+      "dueDate": "2026-08-22",
+      "status": "Pending",
+      "priority": "Low"
+    },
+    {
+      "id": "c62382b9-0ce7-4c8f-8a2a-bc7cb4745c67",
+      "title": "Follow up on pending matter 7",
+      "dueDate": "2026-07-31",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "e769583e-1344-4e73-bd61-4fabc16d416b",
+      "title": "Follow up on pending matter 8",
+      "dueDate": "2026-08-01",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "870227b1-c0d0-4c22-aa84-29032ee293a7",
+      "title": "Follow up on pending matter 9",
+      "dueDate": "2026-08-02",
+      "status": "Completed",
+      "priority": "High"
+    },
+    {
+      "id": "81a4da6d-5dba-4632-98da-f47bbf67c38a",
+      "title": "Follow up on pending matter 10",
+      "dueDate": "2026-08-03",
+      "status": "Completed",
+      "priority": "Medium"
+    },
+    {
+      "id": "1fe2fdd7-386c-4875-9b4c-16c7f9d55bea",
+      "title": "Follow up on pending matter 11",
+      "dueDate": "2026-08-04",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "7e29f6b6-0df1-4f3c-a297-9d8a028fba16",
+      "title": "Follow up on pending matter 12",
+      "dueDate": "2026-08-05",
+      "status": "Pending",
+      "priority": "High"
+    },
+    {
+      "id": "04e15d87-9ef5-4eb0-b0ed-b9579e916068",
+      "title": "Follow up on pending matter 13",
+      "dueDate": "2026-08-06",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "6135642b-36c0-4d1a-aeb9-518f6da688be",
+      "title": "Follow up on pending matter 14",
+      "dueDate": "2026-07-31",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "50050b98-89f7-448b-b670-53055cb82799",
+      "title": "Follow up on pending matter 15",
+      "dueDate": "2026-08-01",
+      "status": "Pending",
+      "priority": "High"
+    },
+    {
+      "id": "2fec972e-d139-467d-a021-4cb3147db737",
+      "title": "Follow up on pending matter 16",
+      "dueDate": "2026-08-02",
+      "status": "Completed",
+      "priority": "Medium"
+    },
+    {
+      "id": "262d6d35-6145-4283-a952-3222a777cc36",
+      "title": "Follow up on pending matter 17",
+      "dueDate": "2026-08-03",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": "bee02c3d-a56c-47ba-9302-0243ac82a7ad",
+      "title": "Follow up on pending matter 18",
+      "dueDate": "2026-08-04",
+      "status": "Pending",
+      "priority": "High"
+    }
+  ],
+  "documents": []
+}
