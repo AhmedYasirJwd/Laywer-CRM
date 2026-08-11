@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import type { CaseStatus, LegalCase, Priority, PartyRole } from "@/lib/types";
+import { CASE_ROLES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
 
@@ -11,7 +12,7 @@ const CASE_TYPES = ["Civil Suit", "Criminal Appeal", "Writ Petition", "Bail Appl
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 const STAGES = ["Filed", "Written Statement", "Issues Framed", "Evidence", "Arguments", "Judgment Reserved", "Disposed"];
-const PARTY_ROLES: PartyRole[] = ["Plaintiff", "Defendant", "Petitioner", "Respondent", "Witness", "Other"];
+const PARTY_ROLES: PartyRole[] = CASE_ROLES;
 
 interface PartyDraft {
   key: string;
@@ -49,7 +50,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     court: initial?.court ?? "",
     filingDate: initial?.filingDate ?? new Date().toISOString().slice(0, 10),
     caseType: initial?.caseType ?? CASE_TYPES[0],
-    judge: initial?.judge ?? "",
+    counselFor: initial?.counselFor ?? CASE_ROLES[0],
     stage: initial?.stage && STAGES.includes(initial.stage) ? initial.stage : STAGES[0],
     status: initial?.status ?? "Active",
     priority: initial?.priority ?? "Medium",
@@ -71,8 +72,15 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function updateParty<K extends keyof PartyDraft>(key: string, field: K, value: PartyDraft[K]) {
-    setParties((ps) => ps.map((p) => (p.key === key ? { ...p, [field]: value } : p)));
+  // Preserve a legacy counsel-for value (e.g. an old judge's name) as a selectable
+  // option if it doesn't match the current role list, so editing an old case
+  // doesn't silently overwrite it.
+  const counselForOptions =
+    form.counselFor && !CASE_ROLES.includes(form.counselFor as PartyRole)
+      ? [form.counselFor, ...CASE_ROLES]
+      : CASE_ROLES;
+
+  function updateParty<K extends keyof PartyDraft>(key: string, field: K, value: PartyDraft[K]) {    setParties((ps) => ps.map((p) => (p.key === key ? { ...p, [field]: value } : p)));
   }
 
   function addParty() {
@@ -104,7 +112,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       court: form.court,
       filingDate: form.filingDate,
       caseType: form.caseType,
-      judge: form.judge,
+      counselFor: form.counselFor,
       stage: form.stage,
       status: form.status,
       priority: form.priority,
@@ -168,13 +176,16 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
               options={KARACHI_COURTS}
             />
           </Field>
-          <Field label="Judge">
-            <input
+          <Field label="Counsel For">
+            <select
               className={inputClass}
-              placeholder="Hon. Justice A. Qureshi"
-              value={form.judge}
-              onChange={(e) => set("judge", e.target.value)}
-            />
+              value={form.counselFor}
+              onChange={(e) => set("counselFor", e.target.value)}
+            >
+              {counselForOptions.map((r) => (
+                <option key={r}>{r}</option>
+              ))}
+            </select>
           </Field>
           <Field label="Filing Date">
             <input

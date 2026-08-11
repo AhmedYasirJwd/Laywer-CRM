@@ -32,7 +32,7 @@ export function HearingFormWithCaseSelect({ cases }: { cases: LegalCase[] }) {
           date: new Date(`${date}T${time}:00`).toISOString(),
           purpose,
           court: selected.court,
-          judge: selected.judge,
+          counselFor: selected.counselFor,
         }),
       });
       if (!res.ok) throw new Error("Request failed");

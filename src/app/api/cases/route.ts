@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     court: body.court,
     filingDate: body.filingDate,
     caseType: body.caseType ?? "Civil Suit",
-    judge: body.judge ?? "",
+    counselFor: body.counselFor ?? "",
     stage: body.stage ?? "Filed",
     status: body.status ?? "Active",
     priority: body.priority ?? "Medium",

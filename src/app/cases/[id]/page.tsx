@@ -83,7 +83,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
               <p className="text-xs text-muted">Next Hearing</p>
               <p className="text-sm font-semibold text-blue-600">{formatDate(nextHearing.date)}</p>
               <p className="text-xs text-muted">{formatTime(nextHearing.date)}</p>
-              <p className="mt-0.5 truncate text-xs text-faint">{item.judge}</p>
+              <p className="mt-0.5 truncate text-xs text-faint">{item.counselFor}</p>
             </div>
             <ChevronRight size={16} className="text-faint" />
           </Link>

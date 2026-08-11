@@ -5,8 +5,26 @@ export type PartyRole =
   | "Defendant"
   | "Petitioner"
   | "Respondent"
-  | "Witness"
+  | "Appellant"
+  | "Accused"
+  | "Complainant"
+  | "Decree Holder"
+  | "Judgment Debtor"
   | "Other";
+
+// Shared role list used for both party roles and the "Counsel For" field.
+export const CASE_ROLES: PartyRole[] = [
+  "Plaintiff",
+  "Defendant",
+  "Petitioner",
+  "Respondent",
+  "Appellant",
+  "Accused",
+  "Complainant",
+  "Decree Holder",
+  "Judgment Debtor",
+  "Other",
+];
 
 export interface Party {
   id: string;
@@ -39,7 +57,7 @@ export interface Hearing {
   date: string; // ISO datetime
   purpose: string;
   court: string;
-  judge?: string;
+  counselFor?: string;
 }
 
 export interface Task {
@@ -58,7 +76,7 @@ export interface LegalCase {
   court: string;
   filingDate: string; // ISO date
   caseType: string;
-  judge: string;
+  counselFor: string;
   stage: string;
   status: CaseStatus;
   priority: Priority;

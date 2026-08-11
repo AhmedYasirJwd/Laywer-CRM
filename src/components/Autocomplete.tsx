@@ -29,6 +29,9 @@ export function Autocomplete({
     return options.filter((o) => o.toLowerCase().includes(q)).slice(0, maxSuggestions);
   }, [value, options, maxSuggestions]);
 
+  const trimmed = value.trim();
+  const showKeepTyped = open && trimmed.length > 0 && suggestions.length === 0;
+
   function pick(option: string) {
     onChange(option);
     setOpen(false);
@@ -68,7 +71,7 @@ export function Autocomplete({
         }}
         autoComplete="off"
       />
-      {open && suggestions.length > 0 && (
+      {open && (suggestions.length > 0 || showKeepTyped) && (
         <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-line bg-surface py-1 shadow-card">
           {suggestions.map((option, i) => (
             <li key={option}>
@@ -84,6 +87,18 @@ export function Autocomplete({
               </button>
             </li>
           ))}
+          {showKeepTyped && (
+            <li>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => pick(trimmed)}
+                className="block w-full truncate px-3.5 py-2 text-left text-sm text-brand-700 hover:bg-brand-50"
+              >
+                No match — use &ldquo;{trimmed}&rdquo;
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>

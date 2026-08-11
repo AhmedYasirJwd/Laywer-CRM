@@ -6,7 +6,6 @@
       "court": "TEST",
       "filingDate": "2026-08-10",
       "caseType": "Civil Suit",
-      "judge": "TEST",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -32,7 +31,8 @@
           "type": "filed"
         }
       ],
-      "lastUpdated": "2026-08-10T18:15:01.927Z"
+      "lastUpdated": "2026-08-10T18:15:01.927Z",
+      "counselFor": "TEST"
     },
     {
       "id": "2b355210-c9fe-4ab0-9292-71afb6fad0eb",
@@ -41,7 +41,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2025-01-10",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Evidence",
       "status": "Active",
       "priority": "High",
@@ -91,7 +90,8 @@
           "description": "Plaintiff evidence has started.",
           "type": "evidence"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "2a121484-0e75-4f9f-b8c6-db741efba216",
@@ -100,7 +100,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2025-02-02",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice S. Baloch",
       "stage": "Arguments",
       "status": "Active",
       "priority": "High",
@@ -140,7 +139,8 @@
           "description": "Counsel for appellant began arguments.",
           "type": "hearing"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice S. Baloch"
     },
     {
       "id": "b25f715d-afb9-4447-bc3d-2157a6709974",
@@ -149,7 +149,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-03-18",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice F. Rehman",
       "stage": "Hearing",
       "status": "Active",
       "priority": "Medium",
@@ -182,7 +181,8 @@
           "description": "Court granted interim relief pending hearing.",
           "type": "order"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice F. Rehman"
     },
     {
       "id": "e291e101-411c-456d-a762-df1f4370c63f",
@@ -191,7 +191,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-06-01",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice K. Memon",
       "stage": "Filed",
       "status": "Pending",
       "priority": "High",
@@ -217,7 +216,8 @@
           "description": "Bail application filed in Sessions Court, Karachi.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice K. Memon"
     },
     {
       "id": "69d31d6f-3a4b-46ac-974e-4194e60affdf",
@@ -226,7 +226,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-07-08",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -240,7 +239,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "0be58811-3bb6-4a83-8a1a-6ea54490a7a7",
@@ -249,7 +249,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-07-03",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "High",
@@ -263,7 +262,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "27694644-d434-434e-941e-731c4cffb055",
@@ -272,7 +272,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-06-28",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Medium",
@@ -286,7 +285,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "4653c08e-090e-4418-a85b-b6c3d286e5f4",
@@ -295,7 +295,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-06-23",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -309,7 +308,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "ce39198d-182a-44df-a536-e666572018a5",
@@ -318,7 +318,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-06-18",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -332,7 +331,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "1a01986e-6b74-43ec-9702-e93e4634c4db",
@@ -341,7 +341,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-06-13",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Medium",
@@ -355,7 +354,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "7f2d0df1-4282-47a8-a4cd-f0f98ea23624",
@@ -364,7 +364,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-06-08",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Low",
@@ -378,7 +377,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "feee3fbb-98c5-45c7-a661-25c1852af509",
@@ -387,7 +387,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-06-03",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -401,7 +400,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "d7268e45-6adf-45f1-8778-0649a200435c",
@@ -410,7 +410,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-05-29",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -424,7 +423,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "ed1c77dc-9a28-41d3-9371-07a027f20c2b",
@@ -433,7 +433,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-05-24",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Low",
@@ -447,7 +446,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "4a84234e-248c-4c63-8f10-05601f973ae5",
@@ -456,7 +456,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-05-19",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "High",
@@ -470,7 +469,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "5ffa7940-f2d6-4674-b2f3-9fe8ff2e4015",
@@ -479,7 +479,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-05-14",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -493,7 +492,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "86659bda-6b29-4ead-a143-3eabb0184dc4",
@@ -502,7 +502,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-05-09",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -516,7 +515,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "25ac91f8-2a02-4b3d-bb9c-e9e992cb6c96",
@@ -525,7 +525,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-05-04",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "High",
@@ -539,7 +538,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "d6ff0542-9bce-498b-9d8e-fbba8f42a70b",
@@ -548,7 +548,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-04-29",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Medium",
@@ -562,7 +561,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "45ad5fa4-76eb-4b2f-9606-2f29172d4ee2",
@@ -571,7 +571,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-04-24",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -585,7 +584,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "0a3dc512-34e6-45de-a7f2-08fe14c80c06",
@@ -594,7 +594,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-04-19",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -608,7 +607,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "70694adb-8ff5-4b49-be6a-52870964aa1f",
@@ -617,7 +617,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-04-14",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Medium",
@@ -631,7 +630,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "ae622b5e-e5dd-4330-8707-9b46fb3a819f",
@@ -640,7 +640,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-04-09",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Low",
@@ -654,7 +653,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "0ca6789d-ff3e-47da-9c8e-1b9ca497a863",
@@ -663,7 +663,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-04-04",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -677,7 +676,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "c5d69c6d-6d2b-424a-a95e-b5660af6029f",
@@ -686,7 +686,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-03-30",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -700,7 +699,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "b251729c-db97-4ef3-a955-3285cbb3f139",
@@ -709,7 +709,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-03-25",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Low",
@@ -723,7 +722,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "d649a883-4110-4f9c-a02a-17564552f728",
@@ -732,7 +732,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-03-20",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "High",
@@ -746,7 +745,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "ac626b36-d919-4224-aabf-5c6758c411a5",
@@ -755,7 +755,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-03-15",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -769,7 +768,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "e91836e1-e640-4f89-ac34-6ecd77cd2600",
@@ -778,7 +778,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-03-10",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -792,7 +791,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "599a5366-506f-4bf6-84e2-6304b2630bf6",
@@ -801,7 +801,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-03-05",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "High",
@@ -815,7 +814,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "68155c49-6d88-4d2b-b8ad-8f3be0d6ca1f",
@@ -824,7 +824,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-02-28",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Medium",
@@ -838,7 +837,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "95b7b202-8894-41bc-8409-7451c283211a",
@@ -847,7 +847,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-02-23",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -861,7 +860,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "ecf32773-1fb4-409a-a554-6680303521de",
@@ -870,7 +870,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-02-18",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -884,7 +883,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "647f32ca-a70b-49fa-83d6-7f5600f81760",
@@ -893,7 +893,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-02-13",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Medium",
@@ -907,7 +906,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "b4e3b622-0a29-40a8-964b-518148ff64e8",
@@ -916,7 +916,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-02-08",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Low",
@@ -930,7 +929,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "2f1ee672-1952-4e6e-8e74-67ed1c828a40",
@@ -939,7 +939,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-02-03",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -953,7 +952,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "180da424-023a-4bda-96f9-1e02a0f2996a",
@@ -962,7 +962,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-01-29",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -976,7 +975,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "7c0c11a4-6570-431c-958c-5becd4f4576a",
@@ -985,7 +985,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-01-24",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Low",
@@ -999,7 +998,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "02640d7c-cbc5-42f0-976d-ab80696b6ea9",
@@ -1008,7 +1008,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2026-01-19",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "High",
@@ -1022,7 +1021,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "3030f432-28a6-4b68-85cf-e4bc7259ffae",
@@ -1031,7 +1031,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2026-01-14",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Medium",
@@ -1045,7 +1044,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "fd68234d-8b7c-47b6-a674-f7cc15f24505",
@@ -1054,7 +1054,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2026-01-09",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -1068,7 +1067,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "35da2028-cdd6-4ffe-b719-e535d808f2cc",
@@ -1077,7 +1077,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2026-01-04",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "High",
@@ -1091,7 +1090,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "c22ee262-bd28-4376-8b56-5b31c319c204",
@@ -1100,7 +1100,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2025-12-30",
       "caseType": "Criminal Appeal",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Medium",
@@ -1114,7 +1113,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "f9853132-2f40-4c35-b8be-b298d2327681",
@@ -1123,7 +1123,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2025-12-25",
       "caseType": "Writ Petition",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "Low",
@@ -1137,7 +1136,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "fc64795a-1efa-40cc-b018-5666d7edad6a",
@@ -1146,7 +1146,6 @@
       "court": "High Court, Karachi",
       "filingDate": "2025-12-20",
       "caseType": "Rent Case",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -1160,7 +1159,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "5ff93755-c58e-4d87-8263-31e41646f35f",
@@ -1169,7 +1169,6 @@
       "court": "Sessions Court, Karachi",
       "filingDate": "2025-12-15",
       "caseType": "Family Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Pending",
       "priority": "Medium",
@@ -1183,7 +1182,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "c0179848-0b63-4f75-93c8-60a5a343ded2",
@@ -1192,7 +1192,6 @@
       "court": "Banking Court, Karachi",
       "filingDate": "2025-12-10",
       "caseType": "Bail Application",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Closed",
       "priority": "Low",
@@ -1206,7 +1205,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "aa13b0e5-7b7d-440d-95e8-56f3988d904f",
@@ -1215,7 +1215,6 @@
       "court": "City Court, Karachi",
       "filingDate": "2025-12-05",
       "caseType": "Civil Suit",
-      "judge": "Hon. Justice A. Qureshi",
       "stage": "Filed",
       "status": "Active",
       "priority": "High",
@@ -1229,7 +1228,8 @@
           "description": "Case has been filed.",
           "type": "filed"
         }
-      ]
+      ],
+      "counselFor": "Hon. Justice A. Qureshi"
     }
   ],
   "hearings": [
@@ -1239,7 +1239,7 @@
       "date": "2026-08-02T06:00:00.000Z",
       "purpose": "Cross examination of plaintiff witness",
       "court": "City Court, Karachi",
-      "judge": "Hon. Justice A. Qureshi"
+      "counselFor": "Hon. Justice A. Qureshi"
     },
     {
       "id": "83e8ea66-edb7-4bf6-9c56-55d35de63faa",
@@ -1247,7 +1247,7 @@
       "date": "2026-08-02T10:00:00.000Z",
       "purpose": "Continuation of arguments",
       "court": "High Court, Karachi",
-      "judge": "Hon. Justice S. Baloch"
+      "counselFor": "Hon. Justice S. Baloch"
     },
     {
       "id": "0caf01d8-5c72-4502-a3df-17a4ff7fa6b1",
@@ -1255,7 +1255,7 @@
       "date": "2026-08-04T05:30:00.000Z",
       "purpose": "Hearing on maintainability",
       "court": "High Court, Karachi",
-      "judge": "Hon. Justice F. Rehman"
+      "counselFor": "Hon. Justice F. Rehman"
     },
     {
       "id": "ca0824b9-38af-4941-a526-a11ffd6d424d",
@@ -1263,7 +1263,7 @@
       "date": "2026-08-07T04:30:00.000Z",
       "purpose": "Bail hearing",
       "court": "Sessions Court, Karachi",
-      "judge": "Hon. Justice K. Memon"
+      "counselFor": "Hon. Justice K. Memon"
     },
     {
       "id": "f7b92e11-7ddb-4e03-b5c4-1b8571636989",
@@ -1271,7 +1271,7 @@
       "date": "2026-08-16T06:00:00.000Z",
       "purpose": "Continuation of evidence",
       "court": "City Court, Karachi",
-      "judge": "Hon. Justice A. Qureshi"
+      "counselFor": "Hon. Justice A. Qureshi"
     }
   ],
   "tasks": [

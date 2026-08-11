@@ -39,8 +39,8 @@ export function CaseInfoGrid({
       <InfoRow icon={Landmark} label="Court">
         {item.court}
       </InfoRow>
-      <InfoRow icon={Scale} label="Judge">
-        {item.judge || "—"}
+      <InfoRow icon={Scale} label="Counsel For">
+        {item.counselFor || "—"}
       </InfoRow>
       <InfoRow icon={Layers} label="Case Stage">
         {item.stage}

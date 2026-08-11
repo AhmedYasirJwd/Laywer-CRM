@@ -19,7 +19,7 @@ export function SearchExplorer({ cases, tasks }: { cases: LegalCase[]; tasks: Ta
         c.title.toLowerCase().includes(q) ||
         c.caseNumber.toLowerCase().includes(q) ||
         c.court.toLowerCase().includes(q) ||
-        c.judge.toLowerCase().includes(q) ||
+        c.counselFor.toLowerCase().includes(q) ||
         c.parties.some((p) => p.name.toLowerCase().includes(q))
     );
   }, [cases, q]);

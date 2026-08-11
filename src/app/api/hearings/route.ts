@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     date: body.date,
     purpose: body.purpose,
     court: body.court,
-    judge: body.judge,
+    counselFor: body.counselFor,
   });
 
   return NextResponse.json(created, { status: 201 });

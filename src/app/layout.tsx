@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "LexCase | Legal Case Management",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-background text-ink">
         <AppShell>{children}</AppShell>
+        <Analytics />
       </body>
     </html>
   );
