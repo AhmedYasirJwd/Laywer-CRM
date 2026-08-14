@@ -8,10 +8,72 @@ import { CASE_ROLES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
 
-const CASE_TYPES = ["Civil Suit", "Criminal Appeal", "Writ Petition", "Bail Application", "Rent Case", "Family Suit"];
+const CASE_TYPES = [
+  "Civil Suit",
+  "Criminal Case",
+  "Criminal Complaint",
+  "Bail",
+  "Family Case",
+  "Constitutional Petition",
+  "Civil Appeal",
+  "Criminal Appeal",
+  "Civil Revision",
+  "Criminal Revision",
+  "Review",
+  "Execution",
+  "Rent Case",
+  "Commercial Case",
+  "Banking / Recovery",
+  "Labour Case",
+  "Service Matter",
+  "Consumer Case",
+  "Company / Corporate Matter",
+  "Customs / Tax Matter",
+  "Narcotics Case",
+  "Anti-Terrorism Case",
+  "Accountability Case",
+  "Cybercrime Case",
+  "Environmental Case",
+  "Intellectual Property Case",
+  "Arbitration",
+  "Contempt",
+  "Guardianship / Custody",
+  "Succession / Probate",
+  "Writ / Constitutional Matter",
+  "Matrimonial Matter",
+  "Legal Notice",
+  "Application / Miscellaneous",
+  "Other",
+];
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
-const STAGES = ["Filed", "Written Statement", "Issues Framed", "Evidence", "Arguments", "Judgment Reserved", "Disposed"];
+const STAGES = [
+  "Pre-Filing",
+  "Filed / Institution",
+  "Notice / Summons",
+  "Appearance",
+  "Pleadings",
+  "Preliminary / Interim Proceedings",
+  "Issues / Points for Determination",
+  "Evidence",
+  "Cross-Examination",
+  "Arguments",
+  "Judgment / Order Reserved",
+  "Judgment / Order Passed",
+  "Decree / Final Order",
+  "Appeal",
+  "Revision",
+  "Review",
+  "Execution / Compliance",
+  "Settlement / Compromise",
+  "Withdrawn",
+  "Dismissed",
+  "Disposed",
+  "Stayed",
+  "Remanded",
+  "Restoration",
+  "Other",
+];
 const PARTY_ROLES: PartyRole[] = CASE_ROLES;
 
 interface PartyDraft {
@@ -51,7 +113,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     filingDate: initial?.filingDate ?? new Date().toISOString().slice(0, 10),
     caseType: initial?.caseType ?? CASE_TYPES[0],
     counselFor: initial?.counselFor ?? CASE_ROLES[0],
-    stage: initial?.stage && STAGES.includes(initial.stage) ? initial.stage : STAGES[0],
+    stage: initial?.stage ?? STAGES[0],
     status: initial?.status ?? "Active",
     priority: initial?.priority ?? "Medium",
   });
@@ -80,7 +142,8 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       ? [form.counselFor, ...CASE_ROLES]
       : CASE_ROLES;
 
-  function updateParty<K extends keyof PartyDraft>(key: string, field: K, value: PartyDraft[K]) {    setParties((ps) => ps.map((p) => (p.key === key ? { ...p, [field]: value } : p)));
+  function updateParty<K extends keyof PartyDraft>(key: string, field: K, value: PartyDraft[K]) {
+    setParties((ps) => ps.map((p) => (p.key === key ? { ...p, [field]: value } : p)));
   }
 
   function addParty() {
@@ -152,11 +215,13 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
             />
           </Field>
           <Field label="Case Type">
-            <select className={inputClass} value={form.caseType} onChange={(e) => set("caseType", e.target.value)}>
-              {CASE_TYPES.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
+            <Autocomplete
+              required
+              placeholder="Start typing to search case types..."
+              value={form.caseType}
+              onChange={(v) => set("caseType", v)}
+              options={CASE_TYPES}
+            />
           </Field>
           <Field label="Case Title (e.g. Party vs Party)">
             <input
@@ -197,11 +262,13 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
             />
           </Field>
           <Field label="Case Stage">
-            <select className={inputClass} value={form.stage} onChange={(e) => set("stage", e.target.value)}>
-              {STAGES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
+            <Autocomplete
+              required
+              placeholder="Start typing to search case stages..."
+              value={form.stage}
+              onChange={(v) => set("stage", v)}
+              options={STAGES}
+            />
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Status">
