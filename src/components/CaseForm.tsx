@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
-import type { CaseStatus, LegalCase, Priority, PartyRole } from "@/lib/types";
+import type { CaseStatus, LegalCase, Priority } from "@/lib/types";
 import { CASE_ROLES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
@@ -74,12 +74,64 @@ const STAGES = [
   "Restoration",
   "Other",
 ];
-const PARTY_ROLES: PartyRole[] = CASE_ROLES;
+const PARTY_1_ROLES = [
+  "Plaintiff",
+  "Petitioner",
+  "Applicant",
+  "Appellant",
+  "Revisionist",
+  "Complainant",
+  "Private Complainant",
+  "Claimant",
+  "Objector",
+  "Intervenor / Intervener",
+  "Aggrieved Person",
+  "Victim / Aggrieved Person",
+  "Decree Holder",
+  "Auction Purchaser",
+  "Creditor",
+  "Bank / Financial Institution",
+  "Taxpayer",
+  "Guardian",
+  "Third Party",
+  "Convict / Appellant",
+  "State",
+  "Prosecution",
+  "Other",
+];
+const PARTY_2_ROLES = [
+  "Defendant",
+  "Respondent",
+  "Respondent in Appeal",
+  "Respondent in Revision",
+  "Opposite Party",
+  "Accused",
+  "State",
+  "Federation",
+  "Province",
+  "Government Department",
+  "Government Authority",
+  "Regulatory Authority",
+  "Creditor",
+  "Bank / Financial Institution",
+  "Borrower / Customer",
+  "Department / Authority",
+  "Third Party",
+  "Other",
+];
+// Any party beyond the first two doesn't fit neatly into either side, so offer everything.
+const OTHER_PARTY_ROLES = Array.from(new Set([...PARTY_1_ROLES, ...PARTY_2_ROLES])).sort();
+
+function rolesForPartyIndex(index: number): string[] {
+  if (index === 0) return PARTY_1_ROLES;
+  if (index === 1) return PARTY_2_ROLES;
+  return OTHER_PARTY_ROLES;
+}
 
 interface PartyDraft {
   key: string;
   name: string;
-  role: PartyRole;
+  role: string;
   phone: string;
   email: string;
 }
@@ -96,7 +148,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputClass =
   "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-faint focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600";
 
-function emptyParty(role: PartyRole = "Other"): PartyDraft {
+function emptyParty(role: string = "Other"): PartyDraft {
   return { key: crypto.randomUUID(), name: "", role, phone: "", email: "" };
 }
 
@@ -130,6 +182,19 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       : [emptyParty("Plaintiff"), emptyParty("Defendant")]
   );
 
+  // The case title auto-fills as "{Party 1} vs {Party 2}" while the user hasn't
+  // typed a custom title themselves. Editing an existing case's title counts as
+  // a deliberate choice, so we don't silently overwrite it there.
+  const [titleTouched, setTitleTouched] = useState(() => Boolean(initial?.title));
+
+  useEffect(() => {
+    if (titleTouched) return;
+    const p1 = parties[0]?.name.trim();
+    const p2 = parties[1]?.name.trim();
+    const computed = p1 && p2 ? `${p1} vs ${p2}` : p1 || p2 || "";
+    setForm((f) => (f.title === computed ? f : { ...f, title: computed }));
+  }, [parties, titleTouched]);
+
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -138,7 +203,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
   // option if it doesn't match the current role list, so editing an old case
   // doesn't silently overwrite it.
   const counselForOptions =
-    form.counselFor && !CASE_ROLES.includes(form.counselFor as PartyRole)
+    form.counselFor && !CASE_ROLES.includes(form.counselFor)
       ? [form.counselFor, ...CASE_ROLES]
       : CASE_ROLES;
 
@@ -229,8 +294,27 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
               className={inputClass}
               placeholder="Ali Khan vs Ahmed & Co."
               value={form.title}
-              onChange={(e) => set("title", e.target.value)}
+              onChange={(e) => {
+                setTitleTouched(true);
+                set("title", e.target.value);
+              }}
             />
+            <p className="mt-1 text-xs text-faint">
+              {titleTouched ? (
+                <>
+                  Editing manually.{" "}
+                  <button
+                    type="button"
+                    onClick={() => setTitleTouched(false)}
+                    className="font-medium text-brand-600 hover:text-brand-700"
+                  >
+                    Auto-fill from parties instead
+                  </button>
+                </>
+              ) : (
+                "Auto-filled from Party 1 vs Party 2 below — edit anytime."
+              )}
+            </p>
           </Field>
           <Field label="Court">
             <Autocomplete
@@ -317,7 +401,11 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
             {parties.map((p, i) => (
               <div key={p.key} className="rounded-xl border border-line p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-xs font-medium uppercase tracking-wide text-faint">Party {i + 1}</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-faint">
+                    Party {i + 1}
+                    {i === 0 && <span className="ml-1.5 normal-case text-faint">— initiating / relief-seeking</span>}
+                    {i === 1 && <span className="ml-1.5 normal-case text-faint">— adverse / responding</span>}
+                  </p>
                   <button
                     type="button"
                     onClick={() => removeParty(p.key)}
@@ -339,9 +427,12 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
                     <select
                       className={inputClass}
                       value={p.role}
-                      onChange={(e) => updateParty(p.key, "role", e.target.value as PartyRole)}
+                      onChange={(e) => updateParty(p.key, "role", e.target.value)}
                     >
-                      {PARTY_ROLES.map((r) => (
+                      {(rolesForPartyIndex(i).includes(p.role)
+                        ? rolesForPartyIndex(i)
+                        : [p.role, ...rolesForPartyIndex(i)]
+                      ).map((r) => (
                         <option key={r}>{r}</option>
                       ))}
                     </select>

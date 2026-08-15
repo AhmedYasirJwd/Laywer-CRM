@@ -4,8 +4,6 @@ import { useState } from "react";
 import { Phone, Mail, User } from "lucide-react";
 import type { Party } from "@/lib/types";
 
-const PLAINTIFF_SIDE = new Set(["Plaintiff", "Petitioner"]);
-
 function PartyCard({ party }: { party: Party }) {
   return (
     <div className="flex-1">
@@ -32,11 +30,13 @@ function PartyCard({ party }: { party: Party }) {
 export function PartiesSection({ parties }: { parties: Party[] }) {
   const [expanded, setExpanded] = useState(false);
 
-  const plaintiffs = parties.filter((p) => PLAINTIFF_SIDE.has(p.role));
-  const defendants = parties.filter((p) => !PLAINTIFF_SIDE.has(p.role));
-  const primaryPlaintiff = plaintiffs[0];
-  const primaryDefendant = defendants[0];
-  const rest = parties.filter((p) => p.id !== primaryPlaintiff?.id && p.id !== primaryDefendant?.id);
+  // Party order is meaningful now: index 0 is always the initiating/relief-seeking
+  // party and index 1 the adverse/responding party (set at creation time), so we
+  // use position rather than trying to bucket by role name — several role labels
+  // (e.g. "State", "Third Party") can legitimately appear on either side.
+  const primary = parties[0];
+  const secondary = parties[1];
+  const rest = parties.slice(2);
 
   if (parties.length === 0) {
     return <p className="text-sm text-muted">No parties added yet.</p>;
@@ -47,15 +47,15 @@ export function PartiesSection({ parties }: { parties: Party[] }) {
       <div className="flex flex-col gap-6 sm:flex-row">
         <div className="flex-1">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-faint">
-            {primaryPlaintiff?.role ?? "Plaintiff / Petitioner"}
+            {primary?.role ?? "Plaintiff / Petitioner"}
           </p>
-          {primaryPlaintiff ? <PartyCard party={primaryPlaintiff} /> : <p className="text-sm text-faint">—</p>}
+          {primary ? <PartyCard party={primary} /> : <p className="text-sm text-faint">—</p>}
         </div>
         <div className="flex-1">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-faint">
-            {primaryDefendant?.role ?? "Defendant / Respondent"}
+            {secondary?.role ?? "Defendant / Respondent"}
           </p>
-          {primaryDefendant ? <PartyCard party={primaryDefendant} /> : <p className="text-sm text-faint">—</p>}
+          {secondary ? <PartyCard party={secondary} /> : <p className="text-sm text-faint">—</p>}
         </div>
       </div>
 

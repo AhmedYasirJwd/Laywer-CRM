@@ -1,19 +1,8 @@
 export type CaseStatus = "Active" | "Pending" | "Closed" | "Disposed";
 export type Priority = "High" | "Medium" | "Low";
-export type PartyRole =
-  | "Plaintiff"
-  | "Defendant"
-  | "Petitioner"
-  | "Respondent"
-  | "Appellant"
-  | "Accused"
-  | "Complainant"
-  | "Decree Holder"
-  | "Judgment Debtor"
-  | "Other";
 
-// Shared role list used for both party roles and the "Counsel For" field.
-export const CASE_ROLES: PartyRole[] = [
+// Shared role list used for the "Counsel For" field.
+export const CASE_ROLES: string[] = [
   "Plaintiff",
   "Defendant",
   "Petitioner",
@@ -29,7 +18,7 @@ export const CASE_ROLES: PartyRole[] = [
 export interface Party {
   id: string;
   name: string;
-  role: PartyRole;
+  role: string;
   phone?: string;
   email?: string;
 }
