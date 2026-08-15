@@ -7,7 +7,7 @@ import { Plus, Trash2 } from "lucide-react";
 import type { LegalCase, Task } from "@/lib/types";
 import { PageHeader } from "./PageHeader";
 import { PriorityBadge } from "./Badge";
-import { formatDate, relativeDayLabel, caseCode } from "@/lib/format";
+import { formatDate, relativeDayLabel } from "@/lib/format";
 
 const TABS = ["Pending", "Completed", "All"] as const;
 
@@ -97,7 +97,7 @@ export function TasksExplorer({ initialTasks, cases }: { initialTasks: Task[]; c
                     {task.title}
                   </p>
                   <p className="truncate text-xs text-muted">
-                    {linkedCase ? `${caseCode(linkedCase.caseType)} #${linkedCase.caseNumber}` : "General"}
+                    {linkedCase ? `#${linkedCase.caseNumber}` : "General"}
                     {task.dueDate && ` · Due ${formatDate(task.dueDate)} (${relativeDayLabel(task.dueDate)})`}
                   </p>
                 </div>

@@ -62,7 +62,7 @@ export function SearchExplorer({ cases, tasks }: { cases: LegalCase[]; tasks: Ta
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-ink">
-                      {caseCode(c.caseType)} #{c.caseNumber}
+                      #{c.caseNumber}
                     </p>
                     <p className="truncate text-xs text-muted">{c.title}</p>
                   </div>

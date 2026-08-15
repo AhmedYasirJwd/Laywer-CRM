@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Hearing, LegalCase } from "@/lib/types";
-import { caseCode, dayNumber, monthShort, formatTime, relativeDayLabel } from "@/lib/format";
+import { dayNumber, monthShort, formatTime, relativeDayLabel } from "@/lib/format";
 
 export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase?: LegalCase }) {
   const label = relativeDayLabel(hearing.date);
@@ -18,7 +18,7 @@ export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-ink">
-          {legalCase ? `${caseCode(legalCase.caseType)} #${legalCase.caseNumber}` : "Hearing"}
+          {legalCase ? `#${legalCase.caseNumber}` : "Hearing"}
         </p>
         <p className="truncate text-xs text-muted">
           {legalCase?.title ?? hearing.purpose} · {legalCase?.court ?? hearing.court}

@@ -4,76 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import type { CaseStatus, LegalCase, Priority } from "@/lib/types";
-import { CASE_ROLES } from "@/lib/types";
+import { CASE_ROLES, CASE_TYPES, CASE_STAGES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
 
-const CASE_TYPES = [
-  "Civil Suit",
-  "Criminal Case",
-  "Criminal Complaint",
-  "Bail",
-  "Family Case",
-  "Constitutional Petition",
-  "Civil Appeal",
-  "Criminal Appeal",
-  "Civil Revision",
-  "Criminal Revision",
-  "Review",
-  "Execution",
-  "Rent Case",
-  "Commercial Case",
-  "Banking / Recovery",
-  "Labour Case",
-  "Service Matter",
-  "Consumer Case",
-  "Company / Corporate Matter",
-  "Customs / Tax Matter",
-  "Narcotics Case",
-  "Anti-Terrorism Case",
-  "Accountability Case",
-  "Cybercrime Case",
-  "Environmental Case",
-  "Intellectual Property Case",
-  "Arbitration",
-  "Contempt",
-  "Guardianship / Custody",
-  "Succession / Probate",
-  "Writ / Constitutional Matter",
-  "Matrimonial Matter",
-  "Legal Notice",
-  "Application / Miscellaneous",
-  "Other",
-];
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
-const STAGES = [
-  "Pre-Filing",
-  "Filed / Institution",
-  "Notice / Summons",
-  "Appearance",
-  "Pleadings",
-  "Preliminary / Interim Proceedings",
-  "Issues / Points for Determination",
-  "Evidence",
-  "Cross-Examination",
-  "Arguments",
-  "Judgment / Order Reserved",
-  "Judgment / Order Passed",
-  "Decree / Final Order",
-  "Appeal",
-  "Revision",
-  "Review",
-  "Execution / Compliance",
-  "Settlement / Compromise",
-  "Withdrawn",
-  "Dismissed",
-  "Disposed",
-  "Stayed",
-  "Remanded",
-  "Restoration",
-  "Other",
-];
+const STAGES = CASE_STAGES;
 const PARTY_1_ROLES = [
   "Plaintiff",
   "Petitioner",

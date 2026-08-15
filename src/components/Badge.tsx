@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 
-type Tone = "green" | "amber" | "blue" | "red" | "slate" | "purple";
+type Tone = "green" | "amber" | "blue" | "red" | "slate" | "purple" | "success";
 
 const TONE_CLASSES: Record<Tone, string> = {
-  green: "bg-brand-100 text-brand-700",
+  green: "bg-success-100 text-success-700",
+  success: "bg-success-100 text-success-700",
   amber: "bg-amber-50 text-amber-600",
   blue: "bg-blue-50 text-blue-600",
   red: "bg-red-50 text-red-600",
@@ -12,17 +13,17 @@ const TONE_CLASSES: Record<Tone, string> = {
 };
 
 const STATUS_TONE: Record<string, Tone> = {
-  Active: "green",
+  Active: "success",
   Pending: "amber",
   Closed: "slate",
   Disposed: "slate",
-  Completed: "green",
+  Completed: "success",
 };
 
 const PRIORITY_TONE: Record<string, Tone> = {
-  High: "amber",
-  Medium: "blue",
-  Low: "slate",
+  High: "red",
+  Medium: "amber",
+  Low: "blue",
 };
 
 export function Badge({ tone = "slate", children }: { tone?: Tone; children: ReactNode }) {

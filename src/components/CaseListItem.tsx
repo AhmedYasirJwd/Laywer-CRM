@@ -16,7 +16,7 @@ export function CaseListItem({ item }: { item: LegalCase }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-ink">
-          {code} #{item.caseNumber}
+          #{item.caseNumber}
         </p>
         <p className="truncate text-xs text-muted">{item.title}</p>
       </div>

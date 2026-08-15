@@ -27,11 +27,15 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Touching auth.getUser() is what actually refreshes an expiring session —
-  // this has to happen on every request or sessions silently die.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() verifies the session's JWT locally (via a cached JWKS check)
+  // instead of making a network round-trip to the Auth server on every single
+  // request the way getUser() does — that round-trip was adding real latency
+  // to every navigation. It still calls getSession() under the hood first, so
+  // an expiring session is refreshed here exactly as before. Actual data
+  // access is enforced by Postgres RLS regardless, so this is purely a
+  // (now faster) routing guard, not the real security boundary.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims ?? null;
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));

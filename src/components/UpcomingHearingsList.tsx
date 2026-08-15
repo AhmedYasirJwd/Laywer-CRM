@@ -1,0 +1,99 @@
+import Link from "next/link";
+import { ChevronRight, MapPin, Layers } from "lucide-react";
+import type { Hearing, LegalCase } from "@/lib/types";
+import { dayNumber, formatDate, formatTime, monthShort, splitHearings } from "@/lib/format";
+
+// Rotating accent palette so consecutive hearings read as visually distinct,
+// same idea as the colored left-bars in the reference design.
+const ACCENTS = [
+  { border: "border-l-blue-600", chip: "bg-blue-50 text-blue-600" },
+  { border: "border-l-purple-600", chip: "bg-purple-50 text-purple-600" },
+  { border: "border-l-amber-600", chip: "bg-amber-50 text-amber-600" },
+  { border: "border-l-success-600", chip: "bg-success-100 text-success-700" },
+];
+
+function isToday(iso: string): boolean {
+  const d = new Date(iso);
+  const n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+}
+
+export function UpcomingHearingsList({
+  hearings,
+  casesById,
+  hearingsByCaseId,
+  emptyMessage = "No upcoming hearings scheduled.",
+}: {
+  hearings: Hearing[];
+  casesById: Map<string, LegalCase>;
+  hearingsByCaseId?: Map<string, Hearing[]>;
+  emptyMessage?: string;
+}) {
+  if (hearings.length === 0) {
+    return <p className="py-8 text-center text-sm text-muted">{emptyMessage}</p>;
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {hearings.map((h, i) => {
+        const accent = ACCENTS[i % ACCENTS.length];
+        const c = casesById.get(h.caseId);
+        const today = isToday(h.date);
+        const { last } = splitHearings(hearingsByCaseId?.get(h.caseId));
+
+        return (
+          <Link
+            key={h.id}
+            href={c ? `/cases/${c.id}` : "/calendar"}
+            className={`flex items-start gap-3 rounded-xl border-l-4 bg-background/60 p-3.5 transition-colors hover:bg-background ${accent.border}`}
+          >
+            <div
+              className={`flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl text-center ${accent.chip}`}
+            >
+              {today ? (
+                <span className="text-[11px] font-bold leading-tight">{formatTime(h.date)}</span>
+              ) : (
+                <>
+                  <span className="text-[10px] font-bold uppercase leading-none">{monthShort(h.date)}</span>
+                  <span className="text-base font-bold leading-tight">{dayNumber(h.date)}</span>
+                </>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                <p className="truncate text-sm font-semibold text-ink">
+                  {c ? `${c.caseType} No. ${c.caseNumber}` : h.purpose}
+                </p>
+                {today && (
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${accent.chip}`}>
+                    {formatTime(h.date)}
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-xs text-muted">{c ? c.title : ""}</p>
+              <p className="mt-1 truncate text-xs text-faint">{h.purpose}</p>
+
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-faint">
+                <span className="inline-flex items-center gap-1">
+                  <MapPin size={11} />
+                  {h.court}
+                </span>
+                {c?.stage && (
+                  <span className="inline-flex items-center gap-1">
+                    <Layers size={11} />
+                    {c.stage}
+                  </span>
+                )}
+                {!today && <span>{formatDate(h.date)}</span>}
+                {last && <span>Last hearing: {formatDate(last.date)}</span>}
+              </div>
+            </div>
+
+            <ChevronRight size={16} className="mt-1 shrink-0 text-faint" />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Scale } from "lucide-react";
 import { signIn } from "@/app/actions/auth";
@@ -54,13 +53,6 @@ export default function LoginPage() {
         <Suspense fallback={<div className="card h-64 animate-pulse p-5" />}>
           <LoginForm />
         </Suspense>
-
-        <p className="mt-4 text-center text-sm text-muted">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-brand-600 hover:text-brand-700">
-            Sign up
-          </Link>
-        </p>
       </div>
     </div>
   );

@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 const TONE_CLASSES: Record<string, string> = {
-  green: "bg-brand-100 text-brand-700",
+  green: "bg-success-100 text-success-700",
+  success: "bg-success-100 text-success-700",
   blue: "bg-blue-50 text-blue-600",
   amber: "bg-amber-50 text-amber-600",
   purple: "bg-purple-50 text-purple-600",
@@ -19,7 +20,7 @@ export function StatCard({
   icon: LucideIcon;
   value: number | string;
   label: string;
-  tone?: "green" | "blue" | "amber" | "purple" | "red";
+  tone?: "green" | "success" | "blue" | "amber" | "purple" | "red";
   href?: string;
 }) {
   const content = (

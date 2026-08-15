@@ -36,11 +36,15 @@ export async function createSupabaseServerClient() {
 // this so a row can never be inserted without an owner — middleware already
 // keeps signed-out visitors away from any page that would reach this code,
 // so this should only ever fail if that invariant is somehow broken.
+//
+// Uses getClaims() rather than getUser(): it verifies the JWT locally (no
+// network round-trip to the Auth server on the happy path), which is the
+// same signature-verified guarantee getUser() provides — Postgres RLS is
+// still what actually enforces access, this just resolves the id faster.
 export async function requireUserId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-  return user.id;
+  const { data, error } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
+  if (error || !userId) throw new Error("Not authenticated");
+  return userId;
 }

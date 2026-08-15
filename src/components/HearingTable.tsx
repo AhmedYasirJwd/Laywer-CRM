@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Hearing, LegalCase } from "@/lib/types";
-import { caseCode, formatDate, formatTime, splitHearings } from "@/lib/format";
+import { formatDate, formatTime, splitHearings } from "@/lib/format";
 
 export function HearingTable({
   hearings,
@@ -32,14 +32,13 @@ export function HearingTable({
         <tbody>
           {hearings.map((h) => {
             const legalCase = casesById.get(h.caseId);
-            const code = legalCase ? caseCode(legalCase.caseType) : null;
             const { last } = splitHearings(hearingsByCaseId?.get(h.caseId));
             return (
               <tr key={h.id} className="group border-b border-line last:border-b-0 hover:bg-background">
                 <td className="px-5 py-3">
                   <Link href={legalCase ? `/cases/${legalCase.id}` : "#"} className="block min-w-0">
                     <span className="block truncate text-sm font-semibold text-ink group-hover:text-brand-700">
-                      {legalCase ? `${code} #${legalCase.caseNumber}` : "—"}
+                      {legalCase ? `#${legalCase.caseNumber}` : "—"}
                     </span>
                     <span className="block truncate text-xs text-muted">
                       {legalCase ? legalCase.title : h.purpose}

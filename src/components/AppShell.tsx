@@ -14,10 +14,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
   if (bare) return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <main className="min-w-0 flex-1 overflow-x-hidden pb-24 lg:pb-8">
+        <main className="min-w-0 flex-1 overflow-x-hidden pb-28 lg:pb-8 bg-[#e7f0fd]">
           <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{children}</div>
         </main>
       </div>

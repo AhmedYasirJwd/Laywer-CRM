@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f6f8;
+  --background: #f5f5fb;
   --surface: #ffffff;
-  --foreground: #0f172a;
+  --foreground: #14132b;
 
-  --brand-50: #ecfdf3;
-  --brand-100: #dcfce7;
-  --brand-600: #16a34a;
-  --brand-700: #15803d;
+  /* Primary brand accent — blue, used for buttons, links, active states */
+  --brand-50: #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-300: #93c5fd;
+  --brand-600: #1e40af;
+  --brand-700: #1a3585;
 
-  --ink: #0f172a;
-  --muted: #64748b;
-  --faint: #94a3b8;
-  --line: #e7ebef;
+  --ink: #14132b;
+  --muted: #6b6a85;
+  --faint: #9998ad;
+  --line: #e6e5f1;
 
   --blue-50: #eff6ff;
   --blue-600: #2563eb;
@@ -26,6 +28,20 @@
 
   --red-50: #fef2f2;
   --red-600: #dc2626;
+
+  /* True success green — decoupled from brand, used for "Active" status etc. */
+  --success-50: #ecfdf3;
+  --success-100: #dcfce7;
+  --success-600: #16a34a;
+  --success-700: #15803d;
+
+  /* Sidebar + mobile nav — lively blue gradient built around the brand blue */
+  --sidebar-from: #0f2358;
+  --sidebar-via: #1e40af;
+  --sidebar-to: #2f5fdb;
+  --sidebar-text: #c3d4f7;
+  --sidebar-active: #1e40af;
+  --sidebar-line: rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
@@ -35,6 +51,7 @@
 
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
+  --color-brand-300: var(--brand-300);
   --color-brand-600: var(--brand-600);
   --color-brand-700: var(--brand-700);
 
@@ -54,6 +71,18 @@
 
   --color-red-50: var(--red-50);
   --color-red-600: var(--red-600);
+
+  --color-success-50: var(--success-50);
+  --color-success-100: var(--success-100);
+  --color-success-600: var(--success-600);
+  --color-success-700: var(--success-700);
+
+  --color-sidebar-from: var(--sidebar-from);
+  --color-sidebar-via: var(--sidebar-via);
+  --color-sidebar-to: var(--sidebar-to);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-line: var(--sidebar-line);
 
   --font-sans: var(--font-inter);
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
