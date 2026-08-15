@@ -9,5 +9,5 @@ export default async function MajorActDetailPage({ params }: { params: Promise<{
   const act = await getLawActBySlug(slug);
   if (!act) notFound();
 
-  return <LawActExplorer act={act} pdfBaseUrl={pdfUrlForAct(act.pdfFile)} />;
+  return <LawActExplorer act={act} pdfUrl={pdfUrlForAct(act.pdfFile)} />;
 }

@@ -20,7 +20,6 @@ export async function getLawActBySlug(slug: string): Promise<LawActDetail | unde
   return { ...meta, sections };
 }
 
-export function pdfUrlForAct(pdfFile: string, page?: number): string {
-  const encoded = `/major-acts-pdfs/${encodeURIComponent(pdfFile)}`;
-  return page ? `${encoded}#page=${page}` : encoded;
+export function pdfUrlForAct(pdfFile: string): string {
+  return `/major-acts-pdfs/${encodeURIComponent(pdfFile)}`;
 }

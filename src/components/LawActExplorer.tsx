@@ -7,7 +7,7 @@ import type { LawActDetail, LawSection } from "@/lib/types";
 import { PageHeader } from "./PageHeader";
 import { LawPdfViewer } from "./LawPdfViewer";
 
-export function LawActExplorer({ act, pdfBaseUrl }: { act: LawActDetail; pdfBaseUrl: string }) {
+export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: string }) {
   const [query, setQuery] = useState("");
   const [activeSection, setActiveSection] = useState<LawSection | null>(null);
 
@@ -108,7 +108,8 @@ export function LawActExplorer({ act, pdfBaseUrl }: { act: LawActDetail; pdfBase
         <LawPdfViewer
           actName={act.act}
           sectionLabel={activeSection.number ? `Section ${activeSection.number} — ${activeSection.title}` : undefined}
-          pdfUrl={`${pdfBaseUrl}#page=${activeSection.page}`}
+          fileUrl={pdfUrl}
+          page={activeSection.page}
           onClose={() => setActiveSection(null)}
         />
       )}
