@@ -21,12 +21,15 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
         const formData = new FormData();
         formData.append("file", file);
         const res = await fetch(`/api/cases/${caseId}/documents`, { method: "POST", body: formData });
-        if (!res.ok) throw new Error("Upload failed");
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error || "Upload failed");
+        }
         const doc: CaseDocument = await res.json();
         setDocuments((docs) => [doc, ...docs]);
       }
-    } catch {
-      setError("Failed to upload document. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload document. Please try again.");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarPlus, ClipboardCheck, UploadCloud, MoreHorizontal } from "lucide-react";
+import { CalendarPlus, ClipboardCheck, UploadCloud } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface QuickAction {
@@ -37,7 +37,6 @@ function buildActions(caseId?: string): QuickAction[] {
       tone: "amber",
     },
     { icon: UploadCloud, label: "Upload Document", href: caseId ? "#documents" : undefined, tone: "purple" },
-    { icon: MoreHorizontal, label: "More", href: undefined, tone: "slate" },
   ];
 }
 
@@ -45,7 +44,7 @@ export function QuickActions({ caseId }: { caseId?: string }) {
   const actions = buildActions(caseId);
 
   return (
-    <div className="card grid grid-cols-4 gap-1 p-4 sm:gap-2">
+    <div className="card grid grid-cols-3 gap-1 p-4 sm:gap-2">
       {actions.map((action) => {
         const Icon = action.icon;
         const body = (

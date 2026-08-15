@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
@@ -28,8 +28,19 @@ function localDateKey(iso: string): string {
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cases: LegalCase[] }) {
-  const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  // Seed as `null` and only set real dates on the client, in an effect. `new Date()`
+  // depends on the machine's clock/timezone — computing "today" during server
+  // render (which can be in a different timezone than the visitor's phone) and
+  // reusing it for the client's first paint causes a hydration mismatch, which
+  // can leave this grid's day buttons non-interactive until a full reload.
+  const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    setCurrentMonth(startOfMonth(now));
+    setSelectedDate(now);
+  }, []);
 
   const casesById = useMemo(() => new Map(cases.map((c) => [c.id, c])), [cases]);
 
@@ -45,10 +56,21 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
   }, [hearings]);
 
   const days = useMemo(() => {
+    if (!currentMonth) return [];
     const start = startOfWeek(startOfMonth(currentMonth));
     const end = endOfWeek(endOfMonth(currentMonth));
     return eachDayOfInterval({ start, end });
   }, [currentMonth]);
+
+  if (!currentMonth || !selectedDate) {
+    return (
+      <div>
+        <PageHeader title="Calendar" subtitle={`${hearings.length} scheduled hearings`} />
+        <div className="card h-[420px] animate-pulse p-4 sm:p-5" />
+        <div className="mt-4 card h-24 animate-pulse p-5" />
+      </div>
+    );
+  }
 
   const selectedKey = format(selectedDate, "yyyy-MM-dd");
   const selectedHearings = hearingsByDate.get(selectedKey) ?? [];
@@ -87,7 +109,7 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
             <button
               type="button"
               aria-label="Previous month"
-              onClick={() => setCurrentMonth((m) => subMonths(m, 1))}
+              onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-background"
             >
               <ChevronLeft size={16} />
@@ -95,7 +117,7 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
             <button
               type="button"
               aria-label="Next month"
-              onClick={() => setCurrentMonth((m) => addMonths(m, 1))}
+              onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-background"
             >
               <ChevronRight size={16} />

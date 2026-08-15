@@ -72,6 +72,7 @@ export default async function DashboardPage() {
           <HearingTable
             hearings={upcomingHearings}
             casesById={casesById}
+            hearingsByCaseId={hearingsByCaseId}
             emptyMessage="No upcoming hearings scheduled."
           />
         </SectionCard>

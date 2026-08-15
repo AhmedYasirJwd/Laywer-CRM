@@ -162,6 +162,11 @@ export async function getTasks(): Promise<Task[]> {
   return db.tasks;
 }
 
+export async function getTasksForCase(caseId: string): Promise<Task[]> {
+  const db = await readDb();
+  return db.tasks.filter((t) => t.caseId === caseId);
+}
+
 export async function createTask(data: Omit<Task, "id" | "status"> & { status?: Task["status"] }): Promise<Task> {
   return locked(async () => {
     const db = await readDb();

@@ -15,12 +15,12 @@ export function PageHeader({
   userName?: string;
 }) {
   return (
-    <div className="mb-5 flex items-center justify-between gap-3">
-      <div>
-        <h1 className="text-xl font-bold text-ink sm:text-2xl">{title}</h1>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0 flex-1">
+        <h1 className="break-words text-xl font-bold text-ink sm:text-2xl">{title}</h1>
         {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         {action}
         <button
           type="button"

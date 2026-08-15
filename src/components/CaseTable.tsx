@@ -23,11 +23,10 @@ export function CaseTable({
         <thead>
           <tr className="border-b border-line text-left text-[11px] font-semibold uppercase tracking-wide text-faint">
             <th className="px-5 py-2.5">Case</th>
-            <th className="px-3 py-2.5">Court</th>
-            {variant === "compact" && <th className="px-3 py-2.5">Case Stage</th>}
-            <th className="px-3 py-2.5">Last Hearing</th>
             <th className="px-3 py-2.5">Next Hearing</th>
-            {variant === "full" && <th className="px-3 py-2.5">Stage</th>}
+            <th className="px-3 py-2.5">Court</th>
+            <th className="px-3 py-2.5">Stage</th>
+            <th className="px-3 py-2.5">Last Hearing</th>
           </tr>
         </thead>
         <tbody>
@@ -49,20 +48,15 @@ export function CaseTable({
                     </span>
                   </Link>
                 </td>
+                <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-ink">
+                  {next ? formatDate(next.date) : <span className="font-normal text-faint">—</span>}
+                </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{c.court}</td>
-                {variant === "compact" && (
-                  <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{c.stage}</td>
-                )}
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{c.stage}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">
                   {last ? formatDate(last.date) : "—"}
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">
-                  {next ? formatDate(next.date) : "—"}
-                </td>
-                {variant === "full" && (
-                  <td className="whitespace-nowrap px-3 py-3 text-sm text-muted">{c.stage}</td>
-                )}
-              </tr> 
+              </tr>
             );
           })}
         </tbody>

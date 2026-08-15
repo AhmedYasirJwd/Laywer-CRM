@@ -77,9 +77,12 @@ export function SearchExplorer({ cases, tasks }: { cases: LegalCase[]; tasks: Ta
             <div className="card p-5">
               <h2 className="mb-3 text-sm font-semibold text-ink">Tasks ({matchedTasks.length})</h2>
               {matchedTasks.map((t) => (
-                <div key={t.id} className="flex items-center justify-between border-b border-line py-3 last:border-b-0 last:pb-0 first:pt-0">
-                  <p className="text-sm font-medium text-ink">{t.title}</p>
-                  {t.dueDate && <span className="text-xs text-muted">Due {formatDate(t.dueDate)}</span>}
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between gap-3 border-b border-line py-3 last:border-b-0 last:pb-0 first:pt-0"
+                >
+                  <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{t.title}</p>
+                  {t.dueDate && <span className="shrink-0 text-xs text-muted">Due {formatDate(t.dueDate)}</span>}
                 </div>
               ))}
             </div>

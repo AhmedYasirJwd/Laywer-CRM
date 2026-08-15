@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Pencil, ChevronRight } from "lucide-react";
-import { getCaseById, getHearingsForCase, getDocumentsForCase } from "@/lib/db";
+import { getCaseById, getHearingsForCase, getDocumentsForCase, getTasksForCase } from "@/lib/db";
 import { formatDate, formatTime, caseCode } from "@/lib/format";
 import { StatusBadge } from "@/components/Badge";
 import { SectionCard } from "@/components/SectionCard";
@@ -10,14 +10,17 @@ import { CaseInfoGrid } from "@/components/CaseInfoGrid";
 import { PartiesSection } from "@/components/PartiesSection";
 import { Timeline } from "@/components/Timeline";
 import { DocumentsSection } from "@/components/DocumentsSection";
+import { EndCaseButton } from "@/components/EndCaseButton";
+import { CaseTasksSection } from "@/components/CaseTasksSection";
 import type { TimelineEvent } from "@/lib/types";
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [item, hearings, documents] = await Promise.all([
+  const [item, hearings, documents, tasks] = await Promise.all([
     getCaseById(id),
     getHearingsForCase(id),
     getDocumentsForCase(id),
+    getTasksForCase(id),
   ]);
 
   if (!item) notFound();
@@ -42,19 +45,22 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <Link href="/cases" className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
           <ArrowLeft size={17} />
           Back to Cases
         </Link>
         <h1 className="hidden text-base font-semibold text-ink sm:block">Case Details</h1>
-        <Link
-          href={`/cases/${item.id}/edit`}
-          className="flex items-center gap-1.5 rounded-xl bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-ink/90"
-        >
-          <Pencil size={14} />
-          Edit
-        </Link>
+        <div className="flex items-center gap-2">
+          <EndCaseButton caseId={item.id} status={item.status} />
+          <Link
+            href={`/cases/${item.id}/edit`}
+            className="flex items-center gap-1.5 rounded-xl bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-ink/90"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        </div>
       </div>
 
       <div className="card mb-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -105,6 +111,10 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
         <SectionCard title="Case Timeline">
           <Timeline events={combinedTimeline} />
+        </SectionCard>
+
+        <SectionCard title="Tasks">
+          <CaseTasksSection caseId={item.id} initialTasks={tasks} />
         </SectionCard>
 
         <div id="documents">
