@@ -60,7 +60,7 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder='Search a section number or title, e.g. "144" or "unlawful assembly"'
+              placeholder='Search a section number or title'
               className="w-full rounded-xl border border-line bg-surface py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-faint focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
               autoFocus
             />
