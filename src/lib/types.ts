@@ -125,3 +125,23 @@ export interface DashboardStats {
   pendingTasks: number;
   overdueTasks: number;
 }
+
+// -------------------------------------------------------------- Major Acts --
+export interface LawSection {
+  number: string;
+  title: string;
+  page: number; // 1-indexed page number in the source PDF
+  text: string;
+}
+
+export interface LawActMeta {
+  slug: string;
+  act: string;
+  pdfFile: string;
+  sectionCount: number;
+  hasIndex: boolean;
+}
+
+export interface LawActDetail extends LawActMeta {
+  sections: LawSection[];
+}
