@@ -110,15 +110,15 @@
       "stage": "Arguments",
       "status": "Active",
       "priority": "High",
-      "lastUpdated": "2026-08-15T13:52:42.116Z",
+      "lastUpdated": "2026-08-01T04:00:00.000Z",
       "parties": [
         {
-          "id": "ad31278e-3c46-489a-a30f-b4568f85b823",
+          "id": "fdfe3da3-bc04-46e9-af7b-b9ad620f5023",
           "name": "State",
           "role": "Petitioner"
         },
         {
-          "id": "b338e4e9-52e2-4067-a1d1-41e04f3491c7",
+          "id": "9afdb9e3-0fa8-4a79-be98-e9b379296596",
           "name": "Muhammad Raza",
           "role": "Respondent",
           "phone": "0322-9988776"
@@ -147,7 +147,7 @@
           "type": "hearing"
         }
       ],
-      "counselFor": "Private Complainant"
+      "counselFor": "Hon. Justice S. Baloch"
     },
     {
       "id": "b25f715d-afb9-4447-bc3d-2157a6709974",

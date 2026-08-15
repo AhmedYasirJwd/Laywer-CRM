@@ -1,8 +1,18 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 
+const BARE_PREFIXES = ["/login", "/signup", "/auth"];
+
 export default function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const bare = BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
+  if (bare) return <>{children}</>;
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />

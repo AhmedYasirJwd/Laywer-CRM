@@ -1,254 +1,458 @@
-import { promises as fs } from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
-import type { Database, LegalCase, Hearing, Task, DashboardStats, CaseDocument } from "./types";
+import { createSupabaseServerClient, requireUserId } from "./supabase/server";
+import type { LegalCase, Hearing, Task, DashboardStats, CaseDocument, Party, TimelineEvent } from "./types";
 
-const DB_PATH = path.join(process.cwd(), "data", "db.json");
+// ---------------------------------------------------------- row <-> app shape --
+// Postgres columns are snake_case; the rest of the app already speaks the
+// camelCase shapes in ./types.ts (unchanged from before this migration), so
+// every read maps rows back into those shapes and every write maps the other
+// way. This is the only file that knows about the database schema.
 
-// Simple mutex so concurrent API requests don't interleave read-modify-write
-// cycles and clobber each other. Good enough for a single-process JSON file;
-// swap for a real database when this grows beyond a prototype.
-let queue: Promise<unknown> = Promise.resolve();
-function locked<T>(fn: () => Promise<T>): Promise<T> {
-  const run = queue.then(fn, fn);
-  queue = run.catch(() => undefined);
-  return run;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+function mapParty(row: any): Party {
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role,
+    phone: row.phone ?? undefined,
+    email: row.email ?? undefined,
+  };
 }
 
-async function readDb(): Promise<Database> {
-  const raw = await fs.readFile(DB_PATH, "utf-8");
-  const db = JSON.parse(raw) as Database;
-  if (!db.documents) db.documents = [];
-  return db;
+function mapTimelineEvent(row: any): TimelineEvent {
+  return {
+    id: row.id,
+    title: row.title,
+    date: row.date,
+    description: row.description ?? "",
+    type: row.type ?? "other",
+  };
 }
 
-async function writeDb(db: Database): Promise<void> {
-  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2), "utf-8");
+function mapCase(row: any): LegalCase {
+  const parties = (row.parties ?? [])
+    .slice()
+    .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))
+    .map(mapParty);
+  const timeline = (row.timeline_events ?? []).map(mapTimelineEvent);
+
+  return {
+    id: row.id,
+    caseNumber: row.case_number,
+    title: row.title,
+    court: row.court,
+    filingDate: row.filing_date,
+    caseType: row.case_type,
+    counselFor: row.counsel_for ?? "",
+    stage: row.stage,
+    status: row.status,
+    priority: row.priority,
+    lastUpdated: row.last_updated,
+    parties,
+    timeline,
+    notes: row.notes ?? undefined,
+  };
 }
 
-export const newId = () => randomUUID();
+function mapHearing(row: any): Hearing {
+  return {
+    id: row.id,
+    caseId: row.case_id,
+    date: row.date,
+    purpose: row.purpose,
+    court: row.court,
+    counselFor: row.counsel_for ?? undefined,
+  };
+}
+
+function mapTask(row: any): Task {
+  return {
+    id: row.id,
+    caseId: row.case_id ?? undefined,
+    title: row.title,
+    dueDate: row.due_date ?? undefined,
+    status: row.status,
+    priority: row.priority ?? undefined,
+  };
+}
+
+function mapDocument(row: any): CaseDocument {
+  return {
+    id: row.id,
+    caseId: row.case_id,
+    name: row.name,
+    size: row.size,
+    mimeType: row.mime_type,
+    uploadedAt: row.uploaded_at,
+    storedPath: row.storage_path,
+  };
+}
+
+const CASE_SELECT = "*, parties(*), timeline_events(*)";
+
+function orderCaseEmbeds<T extends { order: (...args: any[]) => any }>(query: T) {
+  return query
+    .order("position", { referencedTable: "parties", ascending: true })
+    .order("date", { referencedTable: "timeline_events", ascending: true });
+}
+
+export const newId = () => crypto.randomUUID();
 
 // ---------------------------------------------------------------- Cases --
 export async function getCases(): Promise<LegalCase[]> {
-  const db = await readDb();
-  return db.cases;
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await orderCaseEmbeds(
+    supabase.from("cases").select(CASE_SELECT).order("last_updated", { ascending: false })
+  );
+  if (error) throw error;
+  return (data ?? []).map(mapCase);
 }
 
 export async function getCaseById(id: string): Promise<LegalCase | undefined> {
-  const db = await readDb();
-  return db.cases.find((c) => c.id === id);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await orderCaseEmbeds(
+    supabase.from("cases").select(CASE_SELECT).eq("id", id)
+  ).maybeSingle();
+  if (error) throw error;
+  return data ? mapCase(data) : undefined;
 }
 
 export async function createCase(
   data: Omit<LegalCase, "id" | "lastUpdated" | "timeline" | "parties"> &
     Partial<Pick<LegalCase, "timeline" | "parties">>
 ): Promise<LegalCase> {
-  return locked(async () => {
-    const db = await readDb();
-    const newCase: LegalCase = {
-      ...data,
-      id: newId(),
-      parties: data.parties ?? [],
-      timeline: data.timeline ?? [
-        {
-          id: newId(),
-          title: "Case Filed",
-          date: data.filingDate,
-          description: `Case has been filed in ${data.court}.`,
-          type: "filed",
-        },
-      ],
-      lastUpdated: new Date().toISOString(),
-    };
-    db.cases.unshift(newCase);
-    await writeDb(db);
-    return newCase;
-  });
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
+
+  const { data: inserted, error } = await supabase
+    .from("cases")
+    .insert({
+      user_id: userId,
+      case_number: data.caseNumber,
+      title: data.title,
+      court: data.court,
+      filing_date: data.filingDate,
+      case_type: data.caseType,
+      counsel_for: data.counselFor,
+      stage: data.stage,
+      status: data.status,
+      priority: data.priority,
+      notes: data.notes ?? null,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+
+  const caseId = inserted.id as string;
+
+  const parties = data.parties ?? [];
+  if (parties.length > 0) {
+    const { error: partyErr } = await supabase.from("parties").insert(
+      parties.map((p, i) => ({
+        user_id: userId,
+        case_id: caseId,
+        position: i,
+        name: p.name,
+        role: p.role,
+        phone: p.phone || null,
+        email: p.email || null,
+      }))
+    );
+    if (partyErr) throw partyErr;
+  }
+
+  const timeline = data.timeline ?? [
+    {
+      title: "Case Filed",
+      date: data.filingDate,
+      description: `Case has been filed in ${data.court}.`,
+      type: "filed" as const,
+    },
+  ];
+  const { error: timelineErr } = await supabase.from("timeline_events").insert(
+    timeline.map((t) => ({
+      user_id: userId,
+      case_id: caseId,
+      title: t.title,
+      date: t.date,
+      description: t.description,
+      type: t.type,
+    }))
+  );
+  if (timelineErr) throw timelineErr;
+
+  const created = await getCaseById(caseId);
+  return created!;
 }
 
-export async function updateCase(
-  id: string,
-  patch: Partial<LegalCase>
-): Promise<LegalCase | undefined> {
-  return locked(async () => {
-    const db = await readDb();
-    const idx = db.cases.findIndex((c) => c.id === id);
-    if (idx === -1) return undefined;
-    db.cases[idx] = {
-      ...db.cases[idx],
-      ...patch,
-      id: db.cases[idx].id,
-      lastUpdated: new Date().toISOString(),
-    };
-    await writeDb(db);
-    return db.cases[idx];
-  });
+export async function updateCase(id: string, patch: Partial<LegalCase>): Promise<LegalCase | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
+
+  const columnPatch: Record<string, unknown> = { last_updated: new Date().toISOString() };
+  if (patch.caseNumber !== undefined) columnPatch.case_number = patch.caseNumber;
+  if (patch.title !== undefined) columnPatch.title = patch.title;
+  if (patch.court !== undefined) columnPatch.court = patch.court;
+  if (patch.filingDate !== undefined) columnPatch.filing_date = patch.filingDate;
+  if (patch.caseType !== undefined) columnPatch.case_type = patch.caseType;
+  if (patch.counselFor !== undefined) columnPatch.counsel_for = patch.counselFor;
+  if (patch.stage !== undefined) columnPatch.stage = patch.stage;
+  if (patch.status !== undefined) columnPatch.status = patch.status;
+  if (patch.priority !== undefined) columnPatch.priority = patch.priority;
+  if (patch.notes !== undefined) columnPatch.notes = patch.notes;
+
+  const { error } = await supabase.from("cases").update(columnPatch).eq("id", id);
+  if (error) throw error;
+
+  if (patch.parties) {
+    const { error: delErr } = await supabase.from("parties").delete().eq("case_id", id);
+    if (delErr) throw delErr;
+    if (patch.parties.length > 0) {
+      const { error: insErr } = await supabase.from("parties").insert(
+        patch.parties.map((p, i) => ({
+          user_id: userId,
+          case_id: id,
+          position: i,
+          name: p.name,
+          role: p.role,
+          phone: p.phone || null,
+          email: p.email || null,
+        }))
+      );
+      if (insErr) throw insErr;
+    }
+  }
+
+  return getCaseById(id);
 }
 
 export async function deleteCase(id: string): Promise<boolean> {
-  return locked(async () => {
-    const db = await readDb();
-    const before = db.cases.length;
-    db.cases = db.cases.filter((c) => c.id !== id);
-    db.hearings = db.hearings.filter((h) => h.caseId !== id);
-    db.tasks = db.tasks.filter((t) => t.caseId !== id);
-    await writeDb(db);
-    return db.cases.length < before;
-  });
+  const supabase = await createSupabaseServerClient();
+  const { error, count } = await supabase.from("cases").delete({ count: "exact" }).eq("id", id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
 }
 
 export async function addTimelineEvent(
   caseId: string,
   event: Omit<LegalCase["timeline"][number], "id">
 ): Promise<LegalCase | undefined> {
-  return locked(async () => {
-    const db = await readDb();
-    const idx = db.cases.findIndex((c) => c.id === caseId);
-    if (idx === -1) return undefined;
-    db.cases[idx].timeline.push({ ...event, id: newId() });
-    db.cases[idx].lastUpdated = new Date().toISOString();
-    await writeDb(db);
-    return db.cases[idx];
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
+
+  const { error } = await supabase.from("timeline_events").insert({
+    user_id: userId,
+    case_id: caseId,
+    title: event.title,
+    date: event.date,
+    description: event.description,
+    type: event.type,
   });
+  if (error) throw error;
+
+  await supabase.from("cases").update({ last_updated: new Date().toISOString() }).eq("id", caseId);
+  return getCaseById(caseId);
 }
 
 // -------------------------------------------------------------- Hearings --
 export async function getHearings(): Promise<Hearing[]> {
-  const db = await readDb();
-  return db.hearings;
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("hearings").select("*").order("date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(mapHearing);
 }
 
 export async function getHearingsForCase(caseId: string): Promise<Hearing[]> {
-  const db = await readDb();
-  return db.hearings.filter((h) => h.caseId === caseId);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("hearings")
+    .select("*")
+    .eq("case_id", caseId)
+    .order("date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(mapHearing);
 }
 
 export async function createHearing(data: Omit<Hearing, "id">): Promise<Hearing> {
-  return locked(async () => {
-    const db = await readDb();
-    const hearing: Hearing = { ...data, id: newId() };
-    db.hearings.push(hearing);
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
 
-    const caseIdx = db.cases.findIndex((c) => c.id === data.caseId);
-    if (caseIdx !== -1) {
-      db.cases[caseIdx].timeline.push({
-        id: newId(),
-        title: "Hearing Scheduled",
-        date: data.date.slice(0, 10),
-        description: data.purpose,
-        type: "hearing",
-      });
-      db.cases[caseIdx].lastUpdated = new Date().toISOString();
-    }
+  const { data: inserted, error } = await supabase
+    .from("hearings")
+    .insert({
+      user_id: userId,
+      case_id: data.caseId,
+      date: data.date,
+      purpose: data.purpose,
+      court: data.court,
+      counsel_for: data.counselFor ?? null,
+    })
+    .select()
+    .single();
+  if (error) throw error;
 
-    await writeDb(db);
-    return hearing;
+  await supabase.from("timeline_events").insert({
+    user_id: userId,
+    case_id: data.caseId,
+    title: "Hearing Scheduled",
+    date: data.date.slice(0, 10),
+    description: data.purpose,
+    type: "hearing",
   });
+  await supabase.from("cases").update({ last_updated: new Date().toISOString() }).eq("id", data.caseId);
+
+  return mapHearing(inserted);
 }
 
 export async function deleteHearing(id: string): Promise<boolean> {
-  return locked(async () => {
-    const db = await readDb();
-    const before = db.hearings.length;
-    db.hearings = db.hearings.filter((h) => h.id !== id);
-    await writeDb(db);
-    return db.hearings.length < before;
-  });
+  const supabase = await createSupabaseServerClient();
+  const { error, count } = await supabase.from("hearings").delete({ count: "exact" }).eq("id", id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
 }
 
 // ----------------------------------------------------------------- Tasks --
 export async function getTasks(): Promise<Task[]> {
-  const db = await readDb();
-  return db.tasks;
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("tasks").select("*").order("due_date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(mapTask);
 }
 
 export async function getTasksForCase(caseId: string): Promise<Task[]> {
-  const db = await readDb();
-  return db.tasks.filter((t) => t.caseId === caseId);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("case_id", caseId)
+    .order("due_date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(mapTask);
 }
 
 export async function createTask(data: Omit<Task, "id" | "status"> & { status?: Task["status"] }): Promise<Task> {
-  return locked(async () => {
-    const db = await readDb();
-    const task: Task = { ...data, id: newId(), status: data.status ?? "Pending" };
-    db.tasks.unshift(task);
-    await writeDb(db);
-    return task;
-  });
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
+
+  const { data: inserted, error } = await supabase
+    .from("tasks")
+    .insert({
+      user_id: userId,
+      case_id: data.caseId ?? null,
+      title: data.title,
+      due_date: data.dueDate ?? null,
+      priority: data.priority ?? null,
+      status: data.status ?? "Pending",
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapTask(inserted);
 }
 
 export async function updateTask(id: string, patch: Partial<Task>): Promise<Task | undefined> {
-  return locked(async () => {
-    const db = await readDb();
-    const idx = db.tasks.findIndex((t) => t.id === id);
-    if (idx === -1) return undefined;
-    db.tasks[idx] = { ...db.tasks[idx], ...patch, id: db.tasks[idx].id };
-    await writeDb(db);
-    return db.tasks[idx];
-  });
+  const supabase = await createSupabaseServerClient();
+
+  const columnPatch: Record<string, unknown> = {};
+  if (patch.title !== undefined) columnPatch.title = patch.title;
+  if (patch.caseId !== undefined) columnPatch.case_id = patch.caseId;
+  if (patch.dueDate !== undefined) columnPatch.due_date = patch.dueDate;
+  if (patch.status !== undefined) columnPatch.status = patch.status;
+  if (patch.priority !== undefined) columnPatch.priority = patch.priority;
+
+  const { data, error } = await supabase.from("tasks").update(columnPatch).eq("id", id).select().maybeSingle();
+  if (error) throw error;
+  return data ? mapTask(data) : undefined;
 }
 
 export async function deleteTask(id: string): Promise<boolean> {
-  return locked(async () => {
-    const db = await readDb();
-    const before = db.tasks.length;
-    db.tasks = db.tasks.filter((t) => t.id !== id);
-    await writeDb(db);
-    return db.tasks.length < before;
-  });
+  const supabase = await createSupabaseServerClient();
+  const { error, count } = await supabase.from("tasks").delete({ count: "exact" }).eq("id", id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
 }
 
 // ------------------------------------------------------------- Documents --
 export async function getDocumentsForCase(caseId: string): Promise<CaseDocument[]> {
-  const db = await readDb();
-  return db.documents.filter((d) => d.caseId === caseId).sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("case_id", caseId)
+    .order("uploaded_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(mapDocument);
 }
 
 export async function getDocumentById(id: string): Promise<CaseDocument | undefined> {
-  const db = await readDb();
-  return db.documents.find((d) => d.id === id);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("documents").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? mapDocument(data) : undefined;
 }
 
 export async function addDocument(data: Omit<CaseDocument, "id" | "uploadedAt">): Promise<CaseDocument> {
-  return locked(async () => {
-    const db = await readDb();
-    const doc: CaseDocument = { ...data, id: newId(), uploadedAt: new Date().toISOString() };
-    db.documents.push(doc);
-    await writeDb(db);
-    return doc;
-  });
+  const supabase = await createSupabaseServerClient();
+  const userId = await requireUserId();
+
+  const { data: inserted, error } = await supabase
+    .from("documents")
+    .insert({
+      user_id: userId,
+      case_id: data.caseId,
+      name: data.name,
+      size: data.size,
+      mime_type: data.mimeType,
+      storage_path: data.storedPath,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapDocument(inserted);
 }
 
 export async function deleteDocument(id: string): Promise<CaseDocument | undefined> {
-  return locked(async () => {
-    const db = await readDb();
-    const idx = db.documents.findIndex((d) => d.id === id);
-    if (idx === -1) return undefined;
-    const [removed] = db.documents.splice(idx, 1);
-    await writeDb(db);
-    return removed;
-  });
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("documents").delete().eq("id", id).select().maybeSingle();
+  if (error) throw error;
+  return data ? mapDocument(data) : undefined;
 }
 
 // -------------------------------------------------------------- Dashboard --
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const db = await readDb();
+  const supabase = await createSupabaseServerClient();
   const now = new Date();
-  const hearingsThisMonth = db.hearings.filter((h) => {
-    const d = new Date(h.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const overdueTasks = db.tasks.filter(
-    (t) => t.status === "Pending" && t.dueDate && new Date(t.dueDate).getTime() < todayStart
-  ).length;
+  const [
+    { count: totalCases },
+    { count: activeCases },
+    { count: hearingsThisMonth },
+    { count: pendingTasks },
+    { count: overdueTasks },
+  ] = await Promise.all([
+    supabase.from("cases").select("*", { count: "exact", head: true }),
+    supabase.from("cases").select("*", { count: "exact", head: true }).eq("status", "Active"),
+    supabase
+      .from("hearings")
+      .select("*", { count: "exact", head: true })
+      .gte("date", monthStart)
+      .lt("date", monthEnd),
+    supabase.from("tasks").select("*", { count: "exact", head: true }).eq("status", "Pending"),
+    supabase
+      .from("tasks")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "Pending")
+      .lt("due_date", todayStart),
+  ]);
 
   return {
-    totalCases: db.cases.length,
-    activeCases: db.cases.filter((c) => c.status === "Active").length,
-    hearingsThisMonth,
-    pendingTasks: db.tasks.filter((t) => t.status === "Pending").length,
-    overdueTasks,
+    totalCases: totalCases ?? 0,
+    activeCases: activeCases ?? 0,
+    hearingsThisMonth: hearingsThisMonth ?? 0,
+    pendingTasks: pendingTasks ?? 0,
+    overdueTasks: overdueTasks ?? 0,
   };
 }

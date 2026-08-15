@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import { deleteDocument, getDocumentById } from "@/lib/db";
-
-const UPLOAD_ROOT = path.join(process.cwd(), "data", "uploads");
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { DOCUMENTS_BUCKET } from "@/lib/storage";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,27 +10,26 @@ export async function GET(_req: NextRequest, { params }: Params) {
   const doc = await getDocumentById(id);
   if (!doc) return NextResponse.json({ error: "Document not found" }, { status: 404 });
 
-  try {
-    const bytes = await fs.readFile(path.join(UPLOAD_ROOT, doc.storedPath));
-    return new NextResponse(new Uint8Array(bytes), {
-      headers: {
-        "Content-Type": doc.mimeType || "application/octet-stream",
-        "Content-Disposition": `inline; filename="${encodeURIComponent(doc.name)}"`,
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: "File missing on disk" }, { status: 404 });
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .createSignedUrl(doc.storedPath, 60, { download: false });
+
+  if (error || !data) {
+    return NextResponse.json({ error: "File missing in storage" }, { status: 404 });
   }
+
+  return NextResponse.redirect(data.signedUrl);
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   const doc = await deleteDocument(id);
   if (!doc) return NextResponse.json({ error: "Document not found" }, { status: 404 });
-  try {
-    await fs.unlink(path.join(UPLOAD_ROOT, doc.storedPath));
-  } catch {
-    // File already missing on disk — nothing further to clean up.
-  }
+
+  const supabase = await createSupabaseServerClient();
+  await supabase.storage.from(DOCUMENTS_BUCKET).remove([doc.storedPath]);
+  // If this fails the DB row is already gone — nothing further to clean up.
+
   return NextResponse.json({ success: true });
 }
