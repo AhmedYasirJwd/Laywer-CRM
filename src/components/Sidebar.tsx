@@ -15,7 +15,17 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col bg-gradient-to-br from-sidebar-from via-sidebar-via to-sidebar-to lg:flex">
+    <aside className="relative isolate hidden w-64 shrink-0 flex-col overflow-hidden bg-gradient-to-br from-sidebar-from to-sidebar-to lg:flex">
+      {/* Soft blurred color blobs behind the glass panels give the nav items
+          something to actually diffuse when they pick up backdrop-blur —
+          this is what makes the frosted pills below read as "liquid glass"
+          instead of a flat tint. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-blue-500/25 blur-3xl" />
+        <div className="absolute -right-16 top-72 h-64 w-64 rounded-full bg-indigo-400/15 blur-3xl" />
+        <div className="absolute -left-12 bottom-0 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
+      </div>
+
       <div className="flex items-center gap-2.5 px-5 py-6">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
           <Scale size={18} />
@@ -30,8 +40,9 @@ export function Sidebar() {
       <div className="px-4">
         <Link
           href="/cases/new"
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-black/20 transition-colors hover:bg-brand-700"
+          className="relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-black/30 transition-all duration-150 hover:bg-brand-700 active:scale-95"
         >
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent" />
           <Plus size={16} />
           New Case
         </Link>
@@ -45,13 +56,16 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-150 active:scale-95 ${
                 active
-                  ? "bg-white/10 text-white"
-                  : "text-sidebar-text hover:bg-white/5 hover:text-white"
+                  ? "border-white/10 bg-white/10 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] backdrop-blur-md"
+                  : "border-transparent text-sidebar-text hover:border-white/10 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Icon size={18} className={active ? "text-brand-600" : ""} />
+              <Icon
+                size={18}
+                className={active ? "animate-nav-pop text-sidebar-active-icon" : ""}
+              />
               {item.label}
             </Link>
           );
@@ -61,13 +75,16 @@ export function Sidebar() {
       <div className="space-y-1 px-3 pb-3">
         <Link
           href="/settings"
-          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-150 active:scale-95 ${
             isActive(pathname, "/settings")
-              ? "bg-white/10 text-white"
-              : "text-sidebar-text hover:bg-white/5 hover:text-white"
+              ? "border-white/10 bg-white/10 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] backdrop-blur-md"
+              : "border-transparent text-sidebar-text hover:border-white/10 hover:bg-white/5 hover:text-white"
           }`}
         >
-          <Settings size={18} className={isActive(pathname, "/settings") ? "text-brand-600" : ""} />
+          <Settings
+            size={18}
+            className={isActive(pathname, "/settings") ? "animate-nav-pop text-sidebar-active-icon" : ""}
+          />
           Settings
         </Link>
       </div>

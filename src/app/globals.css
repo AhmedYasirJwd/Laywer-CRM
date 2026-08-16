@@ -35,12 +35,12 @@
   --success-600: #16a34a;
   --success-700: #15803d;
 
-  /* Sidebar + mobile nav — lively blue gradient built around the brand blue */
+  /* Sidebar + mobile nav — deep navy-to-charcoal gradient with a "liquid glass" treatment */
   --sidebar-from: #0f2358;
-  --sidebar-via: #1e40af;
-  --sidebar-to: #2f5fdb;
-  --sidebar-text: #c3d4f7;
+  --sidebar-to: #131214;
+  --sidebar-text: #9aa3c7;
   --sidebar-active: #1e40af;
+  --sidebar-active-icon: #7fa8ff;
   --sidebar-line: rgba(255, 255, 255, 0.12);
 }
 
@@ -78,10 +78,10 @@
   --color-success-700: var(--success-700);
 
   --color-sidebar-from: var(--sidebar-from);
-  --color-sidebar-via: var(--sidebar-via);
   --color-sidebar-to: var(--sidebar-to);
   --color-sidebar-text: var(--sidebar-text);
   --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-icon: var(--sidebar-active-icon);
   --color-sidebar-line: var(--sidebar-line);
 
   --font-sans: var(--font-inter);
@@ -125,4 +125,27 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--line);
   border-radius: 999px;
+}
+
+/* Liquid-glass nav: a soft overshoot "pop" that plays when an item becomes
+   active — briefly grows past full size then settles, like an iOS bubble. */
+@keyframes nav-pop {
+  0% {
+    transform: scale(0.82);
+  }
+  55% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-nav-pop {
+  animation: nav-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Elastic easing shared by the sliding nav indicators so switching tabs
+   feels like it overshoots and settles instead of a flat linear slide. */
+.ease-liquid {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
