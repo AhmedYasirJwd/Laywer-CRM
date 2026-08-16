@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, MapPin, Layers } from "lucide-react";
+import { ChevronRight, MapPin } from "lucide-react";
 import type { Hearing, LegalCase } from "@/lib/types";
 import { dayNumber, formatDate, formatTime, monthShort, splitHearings } from "@/lib/format";
 
@@ -74,19 +74,13 @@ export function UpcomingHearingsList({
               <p className="truncate text-xs text-muted">{c ? c.title : ""}</p>
               <p className="mt-1 truncate text-xs text-faint">{h.purpose}</p>
 
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-faint">
-                <span className="inline-flex items-center gap-1">
-                  <MapPin size={11} />
-                  {h.court}
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="inline-flex items-center gap-1 text-[13px] font-medium text-ink">
+                  <MapPin size={13} className="text-faint" />
+                  {c?.court ?? h.court}
                 </span>
-                {c?.stage && (
-                  <span className="inline-flex items-center gap-1">
-                    <Layers size={11} />
-                    {c.stage}
-                  </span>
-                )}
-                {!today && <span>{formatDate(h.date)}</span>}
-                {last && <span>Last hearing: {formatDate(last.date)}</span>}
+                {!today && <span className="text-[11px] text-faint">{formatDate(h.date)}</span>}
+                {last && <span className="text-[11px] text-faint">Last hearing: {formatDate(last.date)}</span>}
               </div>
             </div>
 

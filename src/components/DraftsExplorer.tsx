@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { FileEdit, Search } from "lucide-react";
+import { FileEdit, Search, X } from "lucide-react";
 import { PageHeader } from "./PageHeader";
 import type { DraftTemplate } from "@/lib/drafts";
 
@@ -21,14 +21,27 @@ export function DraftsExplorer({ templates }: { templates: DraftTemplate[] }) {
     <div>
       <PageHeader title="Drafts" subtitle={`${templates.length} document templates`} />
 
-      <div className="relative mb-5">
-        <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search drafts by name..."
-          className="w-full rounded-xl border border-line bg-surface py-3 pl-10 pr-3 text-sm text-ink placeholder:text-faint focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
-        />
+      {/* Sticky search — stays reachable while the grid below scrolls */}
+      <div className="sticky top-0 z-20 -mx-4 mb-5 bg-background/85 px-4 pb-3 pt-1 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="relative">
+          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search drafts by name..."
+            className="w-full rounded-2xl border border-line bg-surface py-3 pl-11 pr-10 text-sm text-ink placeholder:text-faint shadow-sm transition-all focus:border-brand-600 focus:shadow-[0_0_0_4px_rgba(30,64,175,0.12)] focus:outline-none"
+          />
+          {query && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+              className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-faint hover:bg-background hover:text-ink"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -39,7 +52,7 @@ export function DraftsExplorer({ templates }: { templates: DraftTemplate[] }) {
             <Link
               key={d.id}
               href={`/drafts/${d.id}`}
-              className="card flex flex-col gap-3 p-5 transition hover:border-brand-300 hover:shadow-md"
+              className="card flex flex-col gap-3 p-5 transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
                 <FileEdit size={19} />

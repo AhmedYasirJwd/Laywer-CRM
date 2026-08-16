@@ -4,10 +4,12 @@ import { useRef, useState } from "react";
 import { FileText, Download, Trash2, UploadCloud, Loader2 } from "lucide-react";
 import type { CaseDocument } from "@/lib/types";
 import { formatDateTime, formatFileSize } from "@/lib/format";
+import { compressImageIfNeeded } from "@/lib/compress-image";
 
 export function DocumentsSection({ caseId, initialDocuments }: { caseId: string; initialDocuments: CaseDocument[] }) {
   const [documents, setDocuments] = useState(initialDocuments);
   const [uploading, setUploading] = useState(false);
+  const [stage, setStage] = useState<"compressing" | "uploading" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -17,7 +19,11 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
     setUploading(true);
     setError(null);
     try {
-      for (const file of Array.from(files)) {
+      for (const rawFile of Array.from(files)) {
+        setStage("compressing");
+        const file = await compressImageIfNeeded(rawFile);
+
+        setStage("uploading");
         const formData = new FormData();
         formData.append("file", file);
         const res = await fetch(`/api/cases/${caseId}/documents`, { method: "POST", body: formData });
@@ -32,6 +38,7 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
       setError(err instanceof Error ? err.message : "Failed to upload document. Please try again.");
     } finally {
       setUploading(false);
+      setStage(null);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -68,7 +75,7 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
         className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-3 text-sm font-medium text-muted hover:border-brand-600 hover:text-brand-700 disabled:opacity-60"
       >
         {uploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
-        {uploading ? "Uploading..." : "Upload Document"}
+        {stage === "compressing" ? "Compressing..." : uploading ? "Uploading..." : "Upload Document"}
       </button>
 
       {documents.length === 0 ? (

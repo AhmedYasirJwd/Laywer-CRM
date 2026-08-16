@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Briefcase, FolderOpen, Calendar, ClipboardCheck } from "lucide-react";
+import { Bell, Briefcase, FolderOpen, Calendar, ClipboardCheck, Plus } from "lucide-react";
 import { getCases, getHearings, getDashboardStats, getTasks } from "@/lib/db";
 import { Avatar } from "@/components/Avatar";
 import { StatCard } from "@/components/StatCard";
@@ -50,7 +50,14 @@ export default async function DashboardPage() {
           <h1 className="break-words text-xl font-bold text-ink sm:text-2xl">Good morning, Adv. Ahmed 👋</h1>
           <p className="mt-0.5 text-sm text-muted">Here&apos;s what&apos;s happening today.</p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <Link
+            href="/cases/new"
+            className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/30 transition-all hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-md active:translate-y-0 active:scale-95 sm:px-3.5"
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">New Case</span>
+          </Link>
           <button
             type="button"
             aria-label="Notifications"
@@ -64,6 +71,17 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Mobile-only floating shortcut — the sidebar's "New Case" button isn't
+          visible on phones, so this keeps it one thumb-tap away no matter how
+          far down the dashboard you've scrolled. */}
+      <Link
+        href="/cases/new"
+        aria-label="New Case"
+        className="fixed bottom-28 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-700 text-white shadow-lg shadow-brand-700/40 transition-transform active:scale-90 lg:hidden"
+      >
+        <Plus size={24} />
+      </Link>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <StatCard icon={Briefcase} value={stats.totalCases} label="Total Cases" tone="blue" href="/cases" />

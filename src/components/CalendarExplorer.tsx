@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
@@ -35,12 +35,48 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
   // can leave this grid's day buttons non-interactive until a full reload.
   const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [slideDir, setSlideDir] = useState<1 | -1>(1);
 
   useEffect(() => {
     const now = new Date();
     setCurrentMonth(startOfMonth(now));
     setSelectedDate(now);
   }, []);
+
+  function goToPrevMonth() {
+    setSlideDir(-1);
+    setCurrentMonth((m) => (m ? subMonths(m, 1) : m));
+  }
+
+  function goToNextMonth() {
+    setSlideDir(1);
+    setCurrentMonth((m) => (m ? addMonths(m, 1) : m));
+  }
+
+  // Swipe support for touch devices — swipe left for the previous month,
+  // swipe right for the next month. Mostly-vertical touches (page scrolling)
+  // and small accidental drags are ignored.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    if (dx < 0) {
+      goToPrevMonth();
+    } else {
+      goToNextMonth();
+    }
+  }
 
   const casesById = useMemo(() => new Map(cases.map((c) => [c.id, c])), [cases]);
 
@@ -91,7 +127,11 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
         }
       />
 
-      <div className="card p-4 sm:p-5">
+      <div
+        className="card select-none overflow-hidden p-4 sm:p-5"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-ink">{format(currentMonth, "MMMM yyyy")}</h2>
           <div className="flex items-center gap-1.5">
@@ -109,49 +149,53 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
             <button
               type="button"
               aria-label="Previous month"
-              onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-background"
+              onClick={goToPrevMonth}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-transform hover:bg-background active:scale-90"
             >
               <ChevronLeft size={16} />
             </button>
             <button
               type="button"
               aria-label="Next month"
-              onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-background"
+              onClick={goToNextMonth}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-transform hover:bg-background active:scale-90"
             >
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {WEEKDAYS.map((d) => (
-            <div key={d} className="py-1.5 text-[11px] font-semibold uppercase tracking-wide text-faint">
-              {d}
-            </div>
-          ))}
-          {days.map((day) => {
-            const key = format(day, "yyyy-MM-dd");
-            const count = hearingsByDate.get(key)?.length ?? 0;
-            const inMonth = isSameMonth(day, currentMonth);
-            const selected = isSameDay(day, selectedDate);
-            const today = isToday(day);
+        <div
+          key={format(currentMonth, "yyyy-MM")}
+          className={slideDir === 1 ? "animate-month-in-right" : "animate-month-in-left"}
+        >
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {WEEKDAYS.map((d) => (
+              <div key={d} className="py-1.5 text-[11px] font-semibold uppercase tracking-wide text-faint">
+                {d}
+              </div>
+            ))}
+            {days.map((day) => {
+              const key = format(day, "yyyy-MM-dd");
+              const count = hearingsByDate.get(key)?.length ?? 0;
+              const inMonth = isSameMonth(day, currentMonth);
+              const selected = isSameDay(day, selectedDate);
+              const today = isToday(day);
 
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setSelectedDate(day)}
-                className={`relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition-colors ${
-                  selected
-                    ? "bg-ink text-white"
-                    : count > 0
-                      ? "bg-brand-50 text-brand-700 hover:bg-brand-100"
-                      : "text-ink hover:bg-background"
-                } ${!inMonth ? "opacity-35" : ""}`}
-              >
-                <span className={`font-medium ${today && !selected ? "text-brand-700" : ""}`}>{format(day, "d")}</span>
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelectedDate(day)}
+                  className={`relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition-colors ${
+                    selected
+                      ? "bg-ink text-white"
+                      : count > 0
+                        ? "bg-brand-50 text-brand-700 hover:bg-brand-100"
+                        : "text-ink hover:bg-background"
+                  } ${!inMonth ? "opacity-35" : ""}`}
+                >
+                  <span className={`font-medium ${today && !selected ? "text-brand-700" : ""}`}>{format(day, "d")}</span>
                 {today && (
                   <span
                     className={`absolute bottom-1.5 h-1 w-1 rounded-full ${selected ? "bg-white" : "bg-brand-600"}`}
@@ -167,6 +211,7 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 
