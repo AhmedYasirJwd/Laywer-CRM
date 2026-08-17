@@ -9,7 +9,7 @@
 //   worker, law-library PDFs): stale-while-revalidate, so the app still opens
 //   fast and works offline after the first successful visit.
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const SHELL_CACHE = `lexcase-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `lexcase-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline.html";
@@ -28,6 +28,18 @@ self.addEventListener("install", (event) => {
     caches
       .open(SHELL_CACHE)
       .then((cache) => cache.addAll(SHELL_ASSETS))
+      .then(() =>
+        // Best-effort: if the user is already logged in when the SW installs,
+        // grab the dashboard now so the very first offline launch works too
+        // (not just after they've manually visited a page while online).
+        fetch("/")
+          .then((response) => {
+            if (response.ok) {
+              return caches.open(RUNTIME_CACHE).then((cache) => cache.put("/", response));
+            }
+          })
+          .catch(() => {})
+      )
       .then(() => self.skipWaiting())
   );
 });
@@ -72,15 +84,24 @@ self.addEventListener("fetch", (event) => {
 
   // Page navigations: network-first, offline fallback last.
   if (request.mode === "navigate") {
+    // Cache under the plain pathname (no query string) so that launching the
+    // installed app at its start_url ("/?source=pwa") still finds a page
+    // that was cached from a normal in-app visit to "/", and vice versa.
+    const cacheKey = new Request(url.origin + url.pathname, { headers: request.headers });
+
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(cacheKey, copy));
+          }
           return response;
         })
         .catch(async () => {
-          const cached = await caches.match(request);
+          const cached =
+            (await caches.match(cacheKey, { ignoreSearch: true })) ||
+            (await caches.match(request, { ignoreSearch: true }));
           return cached || (await caches.match(OFFLINE_URL));
         })
     );
