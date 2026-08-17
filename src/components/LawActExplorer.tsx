@@ -73,23 +73,39 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {results.map((s) => (
-                <button
-                  key={s.number}
-                  type="button"
-                  onClick={() => openSection(s)}
-                  className="card flex items-start gap-3 p-3.5 text-left transition-colors hover:border-brand-600 hover:bg-brand-50/40"
-                >
-                  <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
-                    {s.number}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-ink">{s.title}</p>
-                    <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
+              {results.map((s) =>
+                s.page == null ? (
+                  <div
+                    key={s.number}
+                    title="This section's page wasn't found in the source PDF"
+                    className="card flex items-start gap-3 p-3.5 text-left opacity-60"
+                  >
+                    <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
+                      {s.number}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-ink">{s.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
+                    </div>
                   </div>
-                  <FileText size={16} className="mt-1 shrink-0 text-faint" />
-                </button>
-              ))}
+                ) : (
+                  <button
+                    key={s.number}
+                    type="button"
+                    onClick={() => openSection(s)}
+                    className="card flex items-start gap-3 p-3.5 text-left transition-colors hover:border-brand-600 hover:bg-brand-50/40"
+                  >
+                    <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
+                      {s.number}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-ink">{s.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
+                    </div>
+                    <FileText size={16} className="mt-1 shrink-0 text-faint" />
+                  </button>
+                )
+              )}
             </div>
           )}
         </>
@@ -109,7 +125,7 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
           actName={act.act}
           sectionLabel={activeSection.number ? `Section ${activeSection.number} — ${activeSection.title}` : undefined}
           fileUrl={pdfUrl}
-          page={activeSection.page}
+          page={activeSection.page ?? 1}
           onClose={() => setActiveSection(null)}
         />
       )}
