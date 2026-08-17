@@ -25,18 +25,20 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
   if (!item) notFound();
 
+  // eslint-disable-next-line react-hooks/purity -- async server component, runs once per request, not subject to React re-render purity rules
+  const now = Date.now();
   const upcoming = [...hearings]
-    .filter((h) => new Date(h.date).getTime() >= Date.now())
+    .filter((h) => new Date(h.date).getTime() >= now)
     .sort((a, b) => a.date.localeCompare(b.date));
   const past = [...hearings]
-    .filter((h) => new Date(h.date).getTime() < Date.now())
+    .filter((h) => new Date(h.date).getTime() < now)
     .sort((a, b) => b.date.localeCompare(a.date));
   const nextHearing = upcoming[0];
   const lastHearing = past[0];
 
   const hearingTimelineEvents: TimelineEvent[] = hearings.map((h) => ({
     id: h.id,
-    title: new Date(h.date).getTime() >= Date.now() ? "Next Hearing" : "Hearing",
+    title: new Date(h.date).getTime() >= now ? "Next Hearing" : "Hearing",
     date: h.date.slice(0, 10),
     description: h.purpose,
     type: "hearing",

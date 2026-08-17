@@ -50,10 +50,14 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
     <div>
       <PageHeader
         title={act.act}
-        subtitle={act.hasIndex ? `${act.sections.length} sections` : "Section index not available for this book yet"}
+        subtitle={
+          act.hasIndex && act.sections.length > 0
+            ? `${act.sections.length} sections`
+            : "Section index not available for this book yet"
+        }
       />
 
-      {act.hasIndex ? (
+      {act.hasIndex && act.sections.length > 0 ? (
         <>
           <div className="relative mb-4">
             <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
@@ -73,39 +77,23 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {results.map((s) =>
-                s.page == null ? (
-                  <div
-                    key={s.number}
-                    title="This section's page wasn't found in the source PDF"
-                    className="card flex items-start gap-3 p-3.5 text-left opacity-60"
-                  >
-                    <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
-                      {s.number}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-ink">{s.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
-                    </div>
+              {results.map((s) => (
+                <button
+                  key={s.number}
+                  type="button"
+                  onClick={() => openSection(s)}
+                  className="card flex items-start gap-3 p-3.5 text-left transition-colors hover:border-brand-600 hover:bg-brand-50/40"
+                >
+                  <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
+                    {s.number}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-ink">{s.title}</p>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
                   </div>
-                ) : (
-                  <button
-                    key={s.number}
-                    type="button"
-                    onClick={() => openSection(s)}
-                    className="card flex items-start gap-3 p-3.5 text-left transition-colors hover:border-brand-600 hover:bg-brand-50/40"
-                  >
-                    <span className="mt-0.5 flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-lg bg-brand-100 px-2 text-xs font-bold text-brand-700">
-                      {s.number}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-ink">{s.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.text}</p>
-                    </div>
-                    <FileText size={16} className="mt-1 shrink-0 text-faint" />
-                  </button>
-                )
-              )}
+                  <FileText size={16} className="mt-1 shrink-0 text-faint" />
+                </button>
+              ))}
             </div>
           )}
         </>
@@ -125,7 +113,7 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
           actName={act.act}
           sectionLabel={activeSection.number ? `Section ${activeSection.number} — ${activeSection.title}` : undefined}
           fileUrl={pdfUrl}
-          page={activeSection.page ?? 1}
+          page={activeSection.page}
           onClose={() => setActiveSection(null)}
         />
       )}

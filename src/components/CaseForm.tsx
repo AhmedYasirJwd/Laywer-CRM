@@ -129,6 +129,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     const p1 = parties[0]?.name.trim();
     const p2 = parties[1]?.name.trim();
     const computed = p1 && p2 ? `${p1} vs ${p2}` : p1 || p2 || "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional derived-state sync (title auto-fills from party names until the user types their own), guarded by titleTouched and a value-equality check to avoid extra renders
     setForm((f) => (f.title === computed ? f : { ...f, title: computed }));
   }, [parties, titleTouched]);
 

@@ -38,7 +38,10 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
   const [slideDir, setSlideDir] = useState<1 | -1>(1);
 
   useEffect(() => {
+    // Intentional: seeds client-only "today" state once on mount to avoid the
+    // SSR/client hydration mismatch described above.
     const now = new Date();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentMonth(startOfMonth(now));
     setSelectedDate(now);
   }, []);

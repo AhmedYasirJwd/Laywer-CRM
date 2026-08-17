@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on everything except static assets, images, and public draft/PDF files.
-    "/((?!_next/static|_next/image|favicon.ico|drafts/.*\\.docx|major-acts-pdfs/.*\\.pdf|pdfjs/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Run on everything except static assets, images, and public draft/PDF/PWA files.
+    "/((?!_next/static|_next/image|favicon.ico|drafts/.*\\.docx|major-acts-pdfs/.*\\.pdf|pdfjs/|manifest\\.webmanifest|sw\\.js|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

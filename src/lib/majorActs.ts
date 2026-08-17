@@ -15,9 +15,17 @@ export async function getLawActBySlug(slug: string): Promise<LawActDetail | unde
   if (!meta) return undefined;
   if (!meta.hasIndex) return { ...meta, sections: [] };
 
-  const raw = await fs.readFile(path.join(DATA_DIR, `${slug}.json`), "utf-8");
-  const sections = JSON.parse(raw);
-  return { ...meta, sections };
+  try {
+    const raw = await fs.readFile(path.join(DATA_DIR, `${slug}.json`), "utf-8");
+    const sections = JSON.parse(raw);
+    return { ...meta, sections };
+  } catch (err) {
+    // Don't let a missing/renamed/case-mismatched sections file (e.g. on a
+    // case-sensitive filesystem like Vercel/Linux) crash the whole page —
+    // fall back to showing the act with the "open full PDF" view instead.
+    console.error(`[major-acts] failed to load sections for slug "${slug}":`, err);
+    return { ...meta, sections: [] };
+  }
 }
 
 export function pdfUrlForAct(pdfFile: string): string {

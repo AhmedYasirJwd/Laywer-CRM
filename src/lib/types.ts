@@ -198,7 +198,7 @@ export interface DashboardStats {
 export interface LawSection {
   number: string;
   title: string;
-  page: number | null; // 1-indexed page number in the source PDF; null if the section text wasn't found in the source PDF
+  page: number; // 1-indexed page number in the source PDF
   text: string;
 }
 
