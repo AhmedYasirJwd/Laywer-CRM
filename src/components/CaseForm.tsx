@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, CloudOff } from "lucide-react";
 import type { CaseStatus, LegalCase, Priority } from "@/lib/types";
 import { CASE_ROLES, CASE_TYPES, CASE_STAGES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
+import { saveCaseLocally } from "@/lib/offlineDb";
 
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
@@ -157,6 +158,8 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     setParties((ps) => ps.filter((p) => p.key !== key));
   }
 
+  const [savedOffline, setSavedOffline] = useState(false);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -185,6 +188,22 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       parties: partiesPayload,
     };
 
+    const localId = isEdit ? initial!.id : crypto.randomUUID();
+
+    async function saveOffline() {
+      await saveCaseLocally(localId, payload, isEdit, initial);
+      setSavedOffline(true);
+      // A brand-new case has no server page to land on yet — go to the list,
+      // where it shows up immediately (marked pending) via the local mirror.
+      // An edit's detail page already exists, so it's safe to go straight there.
+      router.push(isEdit ? `/cases/${localId}` : "/cases");
+    }
+
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      await saveOffline();
+      return;
+    }
+
     try {
       const res = await fetch(isEdit ? `/api/cases/${initial!.id}` : "/api/cases", {
         method: isEdit ? "PATCH" : "POST",
@@ -196,14 +215,21 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       router.push(`/cases/${saved.id}`);
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
-      setSubmitting(false);
+      // Network/server unreachable right now (e.g. connection dropped mid-submit) —
+      // fall back to the same offline-first path instead of losing the user's work.
+      await saveOffline();
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
+      {savedOffline && (
+        <p className="flex items-center gap-1.5 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-700">
+          <CloudOff size={14} />
+          Saved on this device — it&apos;ll sync automatically once you&apos;re back online.
+        </p>
+      )}
 
       <div className="card space-y-4 p-5">
         <h2 className="text-sm font-semibold text-ink">Case Details</h2>

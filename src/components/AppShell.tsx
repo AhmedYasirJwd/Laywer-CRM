@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
+import { SyncStatusBadge } from "./SyncStatusBadge";
 
 const BARE_PREFIXES = ["/login", "/signup", "/auth"];
 
@@ -22,6 +23,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <BottomNav />
+      <SyncStatusBadge />
     </div>
   );
 }

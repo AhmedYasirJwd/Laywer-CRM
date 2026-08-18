@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { Plus, Search, ChevronDown, X } from "lucide-react";
 import type { LegalCase, CaseStatus, Hearing } from "@/lib/types";
 import { CASE_TYPES } from "@/lib/types";
+import { db, mergeServerCases } from "@/lib/offlineDb";
 import { CaseTable } from "./CaseTable";
 import { PageHeader } from "./PageHeader";
 
@@ -23,6 +25,17 @@ export function CasesExplorer({
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>(initialStatus);
   const [typeFilter, setTypeFilter] = useState<string>("All");
 
+  // Freshly-fetched server data replaces the local mirror (except any case
+  // with a pending/unsynced local edit, which we don't want to clobber).
+  useEffect(() => {
+    mergeServerCases(initialCases);
+  }, [initialCases]);
+
+  // Read through the local IndexedDB mirror so the list renders from disk —
+  // works offline, and immediately reflects cases created/edited offline.
+  const localCases = useLiveQuery<LegalCase[]>(() => (db ? db.cases.toArray() : Promise.resolve([])), []);
+  const cases: LegalCase[] = localCases && localCases.length > 0 ? localCases : initialCases;
+
   const hearingsByCaseId = useMemo(() => {
     const map = new Map<string, Hearing[]>();
     for (const h of hearings) {
@@ -34,7 +47,7 @@ export function CasesExplorer({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return initialCases
+    return cases
       .filter((c) => (filter === "All" ? true : c.status === filter))
       .filter((c) => (typeFilter === "All" ? true : c.caseType === typeFilter))
       .filter((c) =>
@@ -45,13 +58,13 @@ export function CasesExplorer({
           : true
       )
       .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated));
-  }, [initialCases, query, filter, typeFilter]);
+  }, [cases, query, filter, typeFilter]);
 
   return (
     <div>
       <PageHeader
         title="Cases"
-        subtitle={`${initialCases.length} total cases`}
+        subtitle={`${cases.length} total cases`}
         action={
           <Link
             href="/cases/new"
