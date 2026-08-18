@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
+import { warmOfflineCache } from "@/lib/offlineSync";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,6 +22,16 @@ export function PwaRegister() {
       });
     }
 
+    // Download every case's page (and the core list/dashboard/calendar/tasks
+    // pages) as soon as the app opens, so it's all available offline later —
+    // not just whichever pages happen to get clicked into first. Repeats on
+    // reconnect and periodically while online, so the offline snapshot stays
+    // reasonably fresh; documents are deliberately never included, since
+    // those live in Supabase Storage and always need a real connection.
+    warmOfflineCache();
+    window.addEventListener("online", () => warmOfflineCache());
+    const interval = setInterval(() => warmOfflineCache(), 5 * 60 * 1000);
+
     function onBeforeInstallPrompt(e: Event) {
       e.preventDefault();
       const alreadyDismissed = localStorage.getItem(DISMISS_KEY);
@@ -34,7 +45,10 @@ export function PwaRegister() {
     }
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+      clearInterval(interval);
+    };
   }, []);
 
   async function handleInstall() {

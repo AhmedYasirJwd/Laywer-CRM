@@ -18,7 +18,7 @@
 // cross-origin requests (Supabase, analytics) — those must always hit the
 // network so data, auth, and writes stay correct.
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const SHELL_CACHE = `lexcase-shell-${CACHE_VERSION}`;
 const DOC_CACHE = `lexcase-docs-${CACHE_VERSION}`;
 const RSC_CACHE = `lexcase-rsc-${CACHE_VERSION}`;
@@ -104,38 +104,9 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return; // let cross-origin (Supabase, analytics) pass through untouched
   if (isApiRequest(url)) return; // always network for API/auth routes
 
-  const isNavigate = request.mode === "navigate";
-  const isRsc = !isNavigate && isRscRequest(request, url);
-
-  if (isNavigate || isRsc) {
-    const cacheName = isNavigate ? DOC_CACHE : RSC_CACHE;
-    const key = normalizedKey(request.url);
-
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(cacheName).then((cache) => cache.put(key, copy));
-          }
-          return response;
-        })
-        .catch(async () => {
-          const scopedCache = await caches.open(cacheName);
-          const cached = await scopedCache.match(key);
-          if (cached) return cached;
-          if (isNavigate) return caches.match(OFFLINE_URL);
-          // No cached RSC payload for this route: let the fetch reject so
-          // Next's router can fall back to a full navigation, which the
-          // `isNavigate` branch above will then serve from DOC_CACHE/offline.
-          return Response.error();
-        })
-    );
-    return;
-  }
-
-  // Static assets: stale-while-revalidate.
   if (isStaticAsset(url)) {
+    // Stale-while-revalidate: answer instantly from cache if we have it,
+    // and refresh the cache in the background either way.
     event.respondWith(
       caches.match(request).then((cached) => {
         const network = fetch(request)
@@ -150,5 +121,38 @@ self.addEventListener("fetch", (event) => {
         return cached || network;
       })
     );
+    return;
   }
+
+  // Everything else same-origin is a page-route response. Real navigations
+  // (`navigate` mode) and Next.js's in-app RSC fetches are handled below —
+  // but so is a *plain* fetch() the app itself makes to warm the cache for a
+  // page the user hasn't actually clicked into yet (see offlineSync.ts):
+  // that's an ordinary GET to the same URL a real visit would make, so it's
+  // cached the same way, under DOC_CACHE alongside real navigations.
+  const isNavigate = request.mode === "navigate";
+  const isRsc = !isNavigate && isRscRequest(request, url);
+  const cacheName = isRsc ? RSC_CACHE : DOC_CACHE;
+  const key = normalizedKey(request.url);
+
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(cacheName).then((cache) => cache.put(key, copy));
+        }
+        return response;
+      })
+      .catch(async () => {
+        const scopedCache = await caches.open(cacheName);
+        const cached = await scopedCache.match(key);
+        if (cached) return cached;
+        if (isNavigate) return caches.match(OFFLINE_URL);
+        // No cached RSC payload for this route: let the fetch reject so
+        // Next's router can fall back to a full navigation, which this same
+        // handler then serves from DOC_CACHE (or the offline page).
+        return Response.error();
+      })
+  );
 });

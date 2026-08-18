@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { db } from "./offlineDb";
+import { warmOfflineCache } from "./offlineSync";
 import type { LegalCase } from "./types";
 
 export type OverallSyncStatus = "synced" | "syncing" | "offline-pending" | "idle";
@@ -46,12 +47,14 @@ export function useSyncManager() {
     if (!db || runningRef.current) return;
     if (typeof navigator !== "undefined" && !navigator.onLine) return;
     runningRef.current = true;
+    let syncedAny = false;
     try {
       const pending = await db.outbox.orderBy("createdAt").toArray();
       for (const entry of pending) {
         await db.cases.update(entry.caseId, { syncStatus: "syncing" });
         try {
           await sendOne(entry);
+          syncedAny = true;
         } catch (err) {
           await db.cases.update(entry.caseId, { syncStatus: "pending" });
           await db.outbox.update(entry.id, {
@@ -62,6 +65,10 @@ export function useSyncManager() {
           break;
         }
       }
+      // A case that just went from local-only to server-synced has a real
+      // id now — make sure its own page (and anything else new) gets warmed
+      // into the offline cache rather than waiting for the next periodic run.
+      if (syncedAny) warmOfflineCache({ force: true });
     } finally {
       runningRef.current = false;
     }
