@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Task } from "@/lib/types";
 import { formatDate, relativeDayLabel } from "@/lib/format";
 
@@ -36,7 +35,7 @@ export function DashboardTasksList({
         const u = urgency(t.dueDate);
         const label = t.dueDate ? (u === "today" || u === "tomorrow" ? relativeDayLabel(t.dueDate) : formatDate(t.dueDate)) : "No due date";
         return (
-          <Link
+          <a
             key={t.id}
             href={t.caseId ? `/cases/${t.caseId}` : "/tasks"}
             className="flex items-center justify-between gap-3 rounded-xl bg-background/60 px-3.5 py-2.5 transition-colors hover:bg-background"
@@ -47,7 +46,7 @@ export function DashboardTasksList({
             >
               {label}
             </span>
-          </Link>
+          </a>
         );
       })}
     </div>

@@ -50,14 +50,10 @@ export function LawActExplorer({ act, pdfUrl }: { act: LawActDetail; pdfUrl: str
     <div>
       <PageHeader
         title={act.act}
-        subtitle={
-          act.hasIndex && act.sections.length > 0
-            ? `${act.sections.length} sections`
-            : "Section index not available for this book yet"
-        }
+        subtitle={act.hasIndex ? `${act.sections.length} sections` : "Section index not available for this book yet"}
       />
 
-      {act.hasIndex && act.sections.length > 0 ? (
+      {act.hasIndex ? (
         <>
           <div className="relative mb-4">
             <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />

@@ -1,18 +1,37 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { FileText, Download, Trash2, UploadCloud, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { FileText, Download, Trash2, UploadCloud, Loader2, HardDriveDownload, CircleCheck } from "lucide-react";
 import type { CaseDocument } from "@/lib/types";
 import { formatDateTime, formatFileSize } from "@/lib/format";
 import { compressImageIfNeeded } from "@/lib/compress-image";
+import { isDocumentSavedOffline, saveDocumentOffline, removeDocumentOffline } from "@/lib/document-offline-cache";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export function DocumentsSection({ caseId, initialDocuments }: { caseId: string; initialDocuments: CaseDocument[] }) {
   const [documents, setDocuments] = useState(initialDocuments);
   const [uploading, setUploading] = useState(false);
   const [stage, setStage] = useState<"compressing" | "uploading" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedOffline, setSavedOffline] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const online = useOnlineStatus();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        documents.map(async (d) => [d.id, await isDocumentSavedOffline(d.id)] as const)
+      );
+      if (!cancelled) setSavedOffline(Object.fromEntries(entries));
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents.map((d) => d.id).join(",")]);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -49,10 +68,28 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
       const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       setDocuments((docs) => docs.filter((d) => d.id !== id));
+      await removeDocumentOffline(id);
     } catch {
       setError("Failed to delete document. Please try again.");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function toggleOffline(id: string) {
+    if (savedOffline[id]) {
+      await removeDocumentOffline(id);
+      setSavedOffline((s) => ({ ...s, [id]: false }));
+      return;
+    }
+    setSavingId(id);
+    try {
+      await saveDocumentOffline(id);
+      setSavedOffline((s) => ({ ...s, [id]: true }));
+    } catch {
+      setError("Couldn't save that document for offline use. Please try again.");
+    } finally {
+      setSavingId(null);
     }
   }
 
@@ -82,38 +119,66 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
         <p className="text-sm text-muted">No documents uploaded yet.</p>
       ) : (
         <ul className="space-y-2">
-          {documents.map((doc) => (
-            <li
-              key={doc.id}
-              className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-3"
-            >
-              <FileText size={18} className="shrink-0 text-faint" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-ink">{doc.name}</p>
-                <p className="text-xs text-muted">
-                  {formatFileSize(doc.size)} · {formatDateTime(doc.uploadedAt)}
-                </p>
-              </div>
-              <a
-                href={`/api/documents/${doc.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-background hover:text-ink"
-                aria-label={`Download ${doc.name}`}
+          {documents.map((doc) => {
+            const saved = Boolean(savedOffline[doc.id]);
+            const savingThis = savingId === doc.id;
+            return (
+              <li
+                key={doc.id}
+                className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-3"
               >
-                <Download size={16} />
-              </a>
-              <button
-                type="button"
-                onClick={() => handleDelete(doc.id)}
-                disabled={deletingId === doc.id}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
-                aria-label={`Delete ${doc.name}`}
-              >
-                {deletingId === doc.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-              </button>
-            </li>
-          ))}
+                <FileText size={18} className="shrink-0 text-faint" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-ink">{doc.name}</p>
+                  <p className="text-xs text-muted">
+                    {formatFileSize(doc.size)} · {formatDateTime(doc.uploadedAt)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleOffline(doc.id)}
+                  disabled={savingThis || (!online && !saved)}
+                  aria-label={saved ? `Remove ${doc.name} from offline storage` : `Save ${doc.name} for offline`}
+                  title={
+                    saved
+                      ? "Available offline — tap to remove"
+                      : online
+                        ? "Save for offline"
+                        : "Requires an internet connection"
+                  }
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg disabled:opacity-40 ${
+                    saved ? "text-success-700 hover:bg-success-100" : "text-muted hover:bg-background hover:text-ink"
+                  }`}
+                >
+                  {savingThis ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : saved ? (
+                    <CircleCheck size={16} />
+                  ) : (
+                    <HardDriveDownload size={16} />
+                  )}
+                </button>
+                <a
+                  href={`/api/documents/${doc.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-background hover:text-ink"
+                  aria-label={`Download ${doc.name}`}
+                >
+                  <Download size={16} />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(doc.id)}
+                  disabled={deletingId === doc.id}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+                  aria-label={`Delete ${doc.name}`}
+                >
+                  {deletingId === doc.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

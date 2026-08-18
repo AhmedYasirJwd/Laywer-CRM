@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav";
 
@@ -43,7 +42,11 @@ export function BottomNav() {
             const active = i === activeIndex;
             const Icon = item.icon;
             return (
-              <Link
+              // Plain <a>, not next/link: this forces a full navigation
+              // instead of Next's client-side RSC transition, which is what
+              // lets the service worker reliably serve the cached offline
+              // shell for these routes when there's no network.
+              <a
                 key={item.href}
                 href={item.href}
                 className="relative z-10 flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-[10px] font-medium transition-transform duration-150 active:scale-90"
@@ -54,7 +57,7 @@ export function BottomNav() {
                   className={active ? "animate-nav-pop text-brand-600" : "text-white/70"}
                 />
                 <span className={active ? "text-brand-600" : "text-white/70"}>{item.label}</span>
-              </Link>
+              </a>
             );
           })}
         </div>

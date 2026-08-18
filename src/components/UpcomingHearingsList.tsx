@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ChevronRight, MapPin } from "lucide-react";
 import type { Hearing, LegalCase } from "@/lib/types";
 import { dayNumber, formatDate, formatTime, monthShort, splitHearings } from "@/lib/format";
@@ -42,7 +41,7 @@ export function UpcomingHearingsList({
         const { last } = splitHearings(hearingsByCaseId?.get(h.caseId));
 
         return (
-          <Link
+          <a
             key={h.id}
             href={c ? `/cases/${c.id}` : "/calendar"}
             className={`flex items-start gap-3 rounded-xl border-l-4 bg-background/60 p-3.5 transition-colors hover:bg-background ${accent.border}`}
@@ -85,7 +84,7 @@ export function UpcomingHearingsList({
             </div>
 
             <ChevronRight size={16} className="mt-1 shrink-0 text-faint" />
-          </Link>
+          </a>
         );
       })}
     </div>

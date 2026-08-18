@@ -1,19 +1,14 @@
-import { getCases, getHearings } from "@/lib/db";
+import { Suspense } from "react";
 import { CasesExplorer } from "@/components/CasesExplorer";
-import type { CaseStatus } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
-
-const VALID_STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
-
-export default async function CasesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string }>;
-}) {
-  const [cases, hearings, params] = await Promise.all([getCases(), getHearings(), searchParams]);
-  const status = params.status;
-  const initialStatus = VALID_STATUSES.includes(status as CaseStatus) ? (status as CaseStatus) : "All";
-
-  return <CasesExplorer initialCases={cases} initialStatus={initialStatus} hearings={hearings} />;
+// Static shell (no server data fetching) so the route itself — including the
+// "?status=Active" deep link from the dashboard — can be served from cache
+// offline. CasesExplorer loads cases client-side (IndexedDB first, then the
+// network) and reads the status filter from the URL itself.
+export default function CasesPage() {
+  return (
+    <Suspense fallback={null}>
+      <CasesExplorer />
+    </Suspense>
+  );
 }

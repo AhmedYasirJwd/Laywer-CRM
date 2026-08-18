@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Hearing, LegalCase } from "@/lib/types";
 import { dayNumber, monthShort, formatTime, relativeDayLabel } from "@/lib/format";
@@ -8,7 +7,7 @@ export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase
   const isToday = label === "Today";
 
   return (
-    <Link
+    <a
       href={legalCase ? `/cases/${legalCase.id}` : "#"}
       className="flex items-center gap-3 border-b border-line py-3 last:border-b-0 last:pb-0 first:pt-0"
     >
@@ -35,6 +34,6 @@ export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase
         </span>
       </div>
       <ChevronRight size={16} className="shrink-0 text-faint" />
-    </Link>
+    </a>
   );
 }

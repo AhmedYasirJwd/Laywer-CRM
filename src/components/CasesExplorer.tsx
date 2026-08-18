@@ -1,40 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Plus, Search, ChevronDown, X } from "lucide-react";
 import type { LegalCase, CaseStatus, Hearing } from "@/lib/types";
 import { CASE_TYPES } from "@/lib/types";
-import { db, mergeServerCases } from "@/lib/offlineDb";
 import { CaseTable } from "./CaseTable";
 import { PageHeader } from "./PageHeader";
+import { useOfflineCollection } from "@/hooks/useOfflineData";
 
 const FILTERS: Array<CaseStatus | "All"> = ["All", "Active", "Pending", "Closed", "Disposed"];
 
-export function CasesExplorer({
-  initialCases,
-  initialStatus = "All",
-  hearings = [],
-}: {
-  initialCases: LegalCase[];
-  initialStatus?: (typeof FILTERS)[number];
-  hearings?: Hearing[];
-}) {
+export function CasesExplorer() {
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get("status");
+  const initialStatus = (FILTERS as string[]).includes(statusParam ?? "")
+    ? (statusParam as (typeof FILTERS)[number])
+    : "All";
+
+  const { data: cases, isOffline } = useOfflineCollection<LegalCase>("cases", "/api/cases");
+  const { data: hearings } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
+
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>(initialStatus);
   const [typeFilter, setTypeFilter] = useState<string>("All");
-
-  // Freshly-fetched server data replaces the local mirror (except any case
-  // with a pending/unsynced local edit, which we don't want to clobber).
-  useEffect(() => {
-    mergeServerCases(initialCases);
-  }, [initialCases]);
-
-  // Read through the local IndexedDB mirror so the list renders from disk —
-  // works offline, and immediately reflects cases created/edited offline.
-  const localCases = useLiveQuery<LegalCase[]>(() => (db ? db.cases.toArray() : Promise.resolve([])), []);
-  const cases: LegalCase[] = localCases && localCases.length > 0 ? localCases : initialCases;
 
   const hearingsByCaseId = useMemo(() => {
     const map = new Map<string, Hearing[]>();
@@ -59,6 +49,8 @@ export function CasesExplorer({
       )
       .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated));
   }, [cases, query, filter, typeFilter]);
+
+  const neverSynced = isOffline && cases.length === 0;
 
   return (
     <div>
@@ -142,12 +134,18 @@ export function CasesExplorer({
         </div>
       </div>
 
-      <CaseTable
-        cases={filtered}
-        variant="full"
-        emptyMessage="No cases match your search."
-        hearingsByCaseId={hearingsByCaseId}
-      />
+      {neverSynced ? (
+        <div className="rounded-2xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted">
+          This information isn&apos;t available offline yet. Connect to the internet once to load your cases.
+        </div>
+      ) : (
+        <CaseTable
+          cases={filtered}
+          variant="full"
+          emptyMessage="No cases match your search."
+          hearingsByCaseId={hearingsByCaseId}
+        />
+      )}
     </div>
   );
 }

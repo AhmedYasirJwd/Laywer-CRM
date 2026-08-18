@@ -1,99 +1,67 @@
-// LexCase service worker
+// Service worker for LexCase.
 //
-// Why this file is more than a simple "cache the page" worker: Next.js App
-// Router does NOT do a full page load for most in-app navigation (clicking a
-// <Link>). It fetches a special RSC ("React Server Component") payload in
-// the background and patches the DOM — the browser's `navigate`-mode request
-// only happens on the very first load, a hard refresh, or typing a URL. That
-// means caching only `navigate` requests (an easy first mistake) leaves every
-// page you reach via in-app links completely uncached, so going offline after
-// "browsing around" still fails. This worker caches BOTH kinds of request:
+// LexCase is a live-data, authenticated app (Supabase-backed). Most pages
+// (Settings, Drafts, Major Acts, Search, every create/edit form) stay
+// server-rendered and online-only — deliberately not cached here.
 //
-// - DOC_CACHE: full HTML documents, for real navigations / reloads / cold
-//   launches of the installed app.
-// - RSC_CACHE: the RSC payloads Next's router fetches for in-app link clicks,
-//   so soft-navigating to an already-visited page works offline too.
+// Five routes have real offline support, backed by IndexedDB in the app
+// itself (see src/hooks/useOfflineData.ts) rather than by caching API
+// responses in here: Dashboard (/), Cases (/cases), Case Detail
+// (/cases/:id), Calendar (/calendar), Tasks (/tasks). Their HTML/JS shell
+// is identical for every request (no server-embedded data), so it's safe
+// to cache network-first and replay if the network is unreachable — the
+// shell then reads the real data straight out of IndexedDB.
 //
-// Everything else follows one simple rule: never touch API/auth routes or
-// cross-origin requests (Supabase, analytics) — those must always hit the
-// network so data, auth, and writes stay correct.
+// What this file does NOT do, on purpose:
+//   - Cache /api/* responses. Those can contain another user's-eyes-only
+//     case data; caching them in the shared Cache Storage is a bigger
+//     attack surface than the app's own IndexedDB store, which the app
+//     code already guards behind the normal auth check on every request.
+//   - Cache documents/PDFs automatically — see the explicit "Download for
+//     offline" affordance in the Documents section instead.
 
-const CACHE_VERSION = "v4";
-const SHELL_CACHE = `lexcase-shell-${CACHE_VERSION}`;
-const DOC_CACHE = `lexcase-docs-${CACHE_VERSION}`;
-const RSC_CACHE = `lexcase-rsc-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `lexcase-runtime-${CACHE_VERSION}`;
-const OFFLINE_URL = "/offline.html";
-const ALL_CACHES = [SHELL_CACHE, DOC_CACHE, RSC_CACHE, RUNTIME_CACHE];
+const VERSION = "v2";
+const STATIC_CACHE = `lexcase-static-${VERSION}`;
+const SHELL_CACHE = `lexcase-shell-${VERSION}`;
 
-const SHELL_ASSETS = [
-  OFFLINE_URL,
-  "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/icon-maskable-192.png",
-  "/icon-maskable-512.png",
-];
+const PRECACHE_URLS = ["/offline.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches
-      .open(SHELL_CACHE)
-      .then((cache) => cache.addAll(SHELL_ASSETS))
-      .then(() =>
-        // Best-effort: if the user is already logged in when the SW installs,
-        // grab the dashboard now so the very first offline launch works too
-        // (not just after they've manually visited a page while online).
-        fetch("/")
-          .then((response) => {
-            if (response.ok) return caches.open(DOC_CACHE).then((cache) => cache.put("/", response));
-          })
-          .catch(() => {})
-      )
-      .then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener("activate", (event) => {
+  // "lexcase-documents-v1" is deliberately NOT in this set — it holds
+  // documents the user explicitly chose to save offline, and should persist
+  // across deploys/versions until they remove it themselves.
+  const keep = new Set([STATIC_CACHE, SHELL_CACHE, "lexcase-documents-v1"]);
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => !ALL_CACHES.includes(key)).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((k) => !keep.has(k)).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
-function isApiRequest(url) {
-  return url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/");
+function isImmutableBuildAsset(url) {
+  return url.origin === self.location.origin && url.pathname.startsWith("/_next/static/");
 }
 
-// Static, safely cacheable same-origin assets.
-function isStaticAsset(url) {
+function isBrandAsset(url) {
   return (
-    url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/pdfjs/") ||
-    url.pathname.startsWith("/major-acts-pdfs/") ||
-    url.pathname.startsWith("/images/") ||
-    /\.(png|jpg|jpeg|webp|svg|ico|woff2?|css)$/.test(url.pathname)
+    url.origin === self.location.origin &&
+    (url.pathname.startsWith("/icons/") || url.pathname === "/manifest.webmanifest")
   );
 }
 
-// Next.js marks client-router data fetches with an "RSC" header and/or a
-// "_rsc" cache-busting query param.
-function isRscRequest(request, url) {
-  return (
-    request.headers.get("RSC") === "1" ||
-    request.headers.get("Next-Router-State-Tree") !== null ||
-    url.searchParams.has("_rsc")
-  );
-}
-
-// Cache key with volatile bits (the "_rsc" hash) stripped, so different
-// requests for "the same page" land on the same cache entry.
-function normalizedKey(url) {
-  const u = new URL(url);
-  u.searchParams.delete("_rsc");
-  return u.origin + u.pathname + (u.search || "");
+// The 5 routes with real offline data support. Matched on pathname only
+// (query strings, e.g. /cases?status=Active, still match /cases).
+function isOfflineShellRoute(pathname) {
+  if (pathname === "/" || pathname === "/cases" || pathname === "/calendar" || pathname === "/tasks") return true;
+  const caseDetail = /^\/cases\/([^/]+)$/.exec(pathname);
+  return Boolean(caseDetail && caseDetail[1] !== "new");
 }
 
 self.addEventListener("fetch", (event) => {
@@ -101,58 +69,68 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return; // let cross-origin (Supabase, analytics) pass through untouched
-  if (isApiRequest(url)) return; // always network for API/auth routes
 
-  if (isStaticAsset(url)) {
-    // Stale-while-revalidate: answer instantly from cache if we have it,
-    // and refresh the cache in the background either way.
+  // Next's hashed build assets and the app's own icons/manifest: cache-first,
+  // they're either content-hashed or effectively static between deploys.
+  if (isImmutableBuildAsset(url) || isBrandAsset(url)) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const network = fetch(request)
-          .then((response) => {
-            if (response.ok) {
-              const copy = response.clone();
-              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
-            }
-            return response;
-          })
-          .catch(() => cached);
-        return cached || network;
+      caches.open(STATIC_CACHE).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        const response = await fetch(request);
+        if (response.ok) cache.put(request, response.clone());
+        return response;
       })
     );
     return;
   }
 
-  // Everything else same-origin is a page-route response. Real navigations
-  // (`navigate` mode) and Next.js's in-app RSC fetches are handled below —
-  // but so is a *plain* fetch() the app itself makes to warm the cache for a
-  // page the user hasn't actually clicked into yet (see offlineSync.ts):
-  // that's an ordinary GET to the same URL a real visit would make, so it's
-  // cached the same way, under DOC_CACHE alongside real navigations.
-  const isNavigate = request.mode === "navigate";
-  const isRsc = !isNavigate && isRscRequest(request, url);
-  const cacheName = isRsc ? RSC_CACHE : DOC_CACHE;
-  const key = normalizedKey(request.url);
+  // Explicitly-saved documents (see src/lib/document-offline-cache.ts): try
+  // the network for the freshest copy, fall back to the saved offline copy
+  // only if the network is unreachable. Nothing here is auto-cached — only
+  // documents the user tapped "Save for offline" on ever end up in this
+  // cache in the first place.
+  if (url.origin === self.location.origin && /^\/api\/documents\/[^/]+$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(request).catch(async () => {
+        const cache = await caches.open("lexcase-documents-v1");
+        const cached = await cache.match(request);
+        return cached || Response.error();
+      })
+    );
+    return;
+  }
 
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(cacheName).then((cache) => cache.put(key, copy));
-        }
-        return response;
-      })
-      .catch(async () => {
-        const scopedCache = await caches.open(cacheName);
-        const cached = await scopedCache.match(key);
-        if (cached) return cached;
-        if (isNavigate) return caches.match(OFFLINE_URL);
-        // No cached RSC payload for this route: let the fetch reject so
-        // Next's router can fall back to a full navigation, which this same
-        // handler then serves from DOC_CACHE (or the offline page).
-        return Response.error();
-      })
-  );
+  if (request.mode === "navigate" && url.origin === self.location.origin) {
+    // Offline-enabled routes: network-first, cache the shell on success (by
+    // pathname, so /cases/abc123 and /cases/xyz789 share one cached shell —
+    // any previously-opened case can reuse it; the actual per-case data
+    // comes from IndexedDB, not from this cached HTML).
+    if (isOfflineShellRoute(url.pathname)) {
+      const cacheKey = /^\/cases\/([^/]+)$/.test(url.pathname) ? "/cases/__shell__" : url.pathname;
+      event.respondWith(
+        (async () => {
+          const cache = await caches.open(SHELL_CACHE);
+          try {
+            const response = await fetch(request);
+            if (response.ok) cache.put(cacheKey, response.clone());
+            return response;
+          } catch {
+            const cached = await cache.match(cacheKey);
+            return cached || caches.match("/offline.html");
+          }
+        })()
+      );
+      return;
+    }
+
+    // Every other page (Settings, Drafts, Major Acts, forms, auth, ...):
+    // online-only. Try the network; if it's unreachable, show the offline
+    // page rather than the browser's generic "No Internet" screen.
+    event.respondWith(fetch(request).catch(() => caches.match("/offline.html")));
+    return;
+  }
+
+  // Everything else — API calls, documents, PDFs, fonts, RSC data requests
+  // for non-shell routes, etc. — untouched, straight to the network.
 });

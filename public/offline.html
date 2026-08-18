@@ -5,64 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>You're offline — LexCase</title>
   <style>
-    :root { color-scheme: light; }
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: #f5f5fb;
       color: #14132b;
-      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       padding: 24px;
     }
-    .card {
-      max-width: 380px;
-      text-align: center;
-      background: #ffffff;
-      border: 1px solid #e6e5f1;
-      border-radius: 20px;
-      padding: 36px 28px;
-      box-shadow: 0 1px 3px rgba(20, 19, 43, 0.06);
-    }
     .icon {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 18px;
-      border-radius: 16px;
-      background: #1e40af;
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: #f59e0b;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-bottom: 20px;
     }
-    .icon svg { width: 28px; height: 28px; }
-    h1 { font-size: 17px; font-weight: 700; margin: 0 0 8px; }
-    p { font-size: 14px; color: #6b6a85; line-height: 1.5; margin: 0 0 20px; }
+    h1 { font-size: 18px; margin: 0 0 8px; }
+    p { font-size: 14px; color: #6b6a85; margin: 0 0 20px; max-width: 320px; }
     button {
-      font: inherit;
+      border: none;
+      background: #1e40af;
+      color: #fff;
       font-weight: 600;
       font-size: 14px;
-      color: #fff;
-      background: #14132b;
-      border: none;
-      border-radius: 12px;
       padding: 10px 20px;
+      border-radius: 12px;
       cursor: pointer;
     }
-    button:hover { background: #232145; }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="wrap">
     <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 9C7 3.5 17 3.5 23 9M5 13C8.5 10 15.5 10 19 13M9 17C10.5 15.7 13.5 15.7 15 17M12 21H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 3h5v5" /><path d="M8 3H3v5" /><path d="M3 16v5h5" /><path d="M21 16v5h-5" />
+        <line x1="3" y1="21" x2="21" y2="3" />
       </svg>
     </div>
     <h1>You're offline</h1>
-    <p>This page hasn't been saved for offline use yet. Reconnect and try again — pages you've already visited will keep working without a connection.</p>
-    <button onclick="location.reload()">Try again</button>
+    <p>LexCase needs a connection to load your cases and hearings. Reconnect and try again.</p>
+    <button onclick="location.reload()">Retry</button>
   </div>
 </body>
 </html>

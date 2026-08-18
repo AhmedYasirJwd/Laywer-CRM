@@ -53,7 +53,10 @@ export function Sidebar() {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
           return (
-            <Link
+            // Plain <a>, not next/link — see BottomNav.tsx for why: it
+            // guarantees the service worker sees a real navigation request
+            // for these routes instead of Next's client-side RSC fetch.
+            <a
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-150 active:scale-95 ${
@@ -67,7 +70,7 @@ export function Sidebar() {
                 className={active ? "animate-nav-pop text-sidebar-active-icon" : ""}
               />
               {item.label}
-            </Link>
+            </a>
           );
         })}
       </nav>

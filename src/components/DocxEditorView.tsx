@@ -89,7 +89,6 @@ export function DocxEditorView({ fileUrl, fileName, title }: { fileUrl: string; 
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard fetch-on-prop-change pattern: reset to "loading" then populate once the fetch resolves
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileUrl]);

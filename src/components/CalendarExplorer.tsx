@@ -19,6 +19,7 @@ import {
 import type { Hearing, LegalCase } from "@/lib/types";
 import { HearingRow } from "./HearingRow";
 import { PageHeader } from "./PageHeader";
+import { useOfflineCollection } from "@/hooks/useOfflineData";
 
 function localDateKey(iso: string): string {
   const d = new Date(iso);
@@ -27,7 +28,10 @@ function localDateKey(iso: string): string {
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cases: LegalCase[] }) {
+export function CalendarExplorer() {
+  const { data: hearings, isOffline } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
+  const { data: cases } = useOfflineCollection<LegalCase>("cases", "/api/cases");
+  const neverSynced = isOffline && hearings.length === 0 && cases.length === 0;
   // Seed as `null` and only set real dates on the client, in an effect. `new Date()`
   // depends on the machine's clock/timezone — computing "today" during server
   // render (which can be in a different timezone than the visitor's phone) and
@@ -38,10 +42,7 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
   const [slideDir, setSlideDir] = useState<1 | -1>(1);
 
   useEffect(() => {
-    // Intentional: seeds client-only "today" state once on mount to avoid the
-    // SSR/client hydration mismatch described above.
     const now = new Date();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentMonth(startOfMonth(now));
     setSelectedDate(now);
   }, []);
@@ -129,6 +130,12 @@ export function CalendarExplorer({ hearings, cases }: { hearings: Hearing[]; cas
           </Link>
         }
       />
+
+      {neverSynced && (
+        <div className="mb-4 rounded-2xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted">
+          This information isn&apos;t available offline yet. Connect to the internet once to load your calendar.
+        </div>
+      )}
 
       <div
         className="card select-none overflow-hidden p-4 sm:p-5"
