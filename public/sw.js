@@ -235,3 +235,48 @@ self.addEventListener("fetch", (event) => {
   // Everything else — API calls, documents, PDFs, fonts, RSC data requests
   // for non-shell routes, etc. — untouched, straight to the network.
 });
+
+// ------------------------------------------------------------ push notifications --
+// Deadline/hearing reminders sent by the notifications cron (see
+// src/app/api/cron/notifications). The payload is small JSON set by the
+// server when it calls webpush.sendNotification(...).
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "LexCase", body: event.data ? event.data.text() : "" };
+  }
+
+  const title = data.title || "LexCase";
+  const options = {
+    body: data.body || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: data.tag,
+    // Renotify so a later reminder with the same tag (e.g. the 1-hour
+    // follow-up to a 24-hour hearing reminder) still alerts the user
+    // instead of silently replacing the old one unseen.
+    renotify: Boolean(data.tag),
+    data: { url: data.url || "/" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : "/";
+
+  event.waitUntil(
+    (async () => {
+      const clientList = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of clientList) {
+        if (client.url.includes(url) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })()
+  );
+});

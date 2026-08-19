@@ -153,3 +153,36 @@ create policy "own storage objects delete" on storage.objects for delete
     and (storage.foldername(name))[1] = 'user'
     and (storage.foldername(name))[2] = auth.uid()::text
   );
+
+-- ------------------------------------------------------------ notifications --
+-- Push subscriptions: one row per browser/device the user has turned
+-- notifications on for. This is the standard Web Push shape — endpoint plus
+-- the two encryption keys the browser returns from PushManager.subscribe().
+-- Written/deleted by the signed-in user themselves (src/app/api/push/subscribe),
+-- read by the notifications cron using the service-role key (bypasses RLS,
+-- since that job has to look across every user, not just one signed-in visitor).
+
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists push_subscriptions_user_id_idx on public.push_subscriptions (user_id);
+
+alter table public.push_subscriptions enable row level security;
+
+drop policy if exists "own push_subscriptions" on public.push_subscriptions;
+create policy "own push_subscriptions" on public.push_subscriptions for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Reminder tracking: which reminders have already gone out for a given
+-- hearing/task, so the notifications cron (runs every few minutes) never
+-- sends the same reminder twice. Null = not sent yet.
+alter table public.hearings add column if not exists reminder_24h_sent_at timestamptz;
+alter table public.hearings add column if not exists reminder_1h_sent_at timestamptz;
+alter table public.tasks add column if not exists reminder_sent_at timestamptz;

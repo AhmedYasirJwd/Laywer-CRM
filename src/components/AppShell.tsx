@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "./OfflineBanner";
+import { NotificationPrompt } from "./NotificationPrompt";
 
 const BARE_PREFIXES = ["/login", "/signup", "/auth"];
 
@@ -24,6 +25,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <BottomNav />
+      <NotificationPrompt />
     </div>
   );
 }
