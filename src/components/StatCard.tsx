@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 const TONE_CLASSES: Record<string, string> = {
@@ -36,7 +35,7 @@ export function StatCard({
   );
 
   if (href) {
-    return <Link href={href}>{content}</Link>;
+    return <a href={href}>{content}</a>;
   }
   return content;
 }

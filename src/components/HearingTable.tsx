@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Hearing, LegalCase } from "@/lib/types";
 import { formatDate, formatTime, splitHearings } from "@/lib/format";
 
@@ -36,14 +35,18 @@ export function HearingTable({
             return (
               <tr key={h.id} className="group border-b border-line last:border-b-0 hover:bg-background">
                 <td className="px-5 py-3">
-                  <Link href={legalCase ? `/cases/${legalCase.id}` : "#"} className="block min-w-0">
+                  {/* Plain <a>, not next/link — this table appears on the
+                      offline-enabled Calendar page, and case detail needs to
+                      still open with no network (see CaseListItem.tsx). */}
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                  <a href={legalCase ? `/cases/${legalCase.id}` : "#"} className="block min-w-0">
                     <span className="block truncate text-sm font-semibold text-ink group-hover:text-brand-700">
                       {legalCase ? `#${legalCase.caseNumber}` : "—"}
                     </span>
                     <span className="block truncate text-xs text-muted">
                       {legalCase ? legalCase.title : h.purpose}
                     </span>
-                  </Link>
+                  </a>
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-ink">
                   {formatDate(h.date)}

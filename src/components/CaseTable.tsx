@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Landmark, Tag, CalendarClock, ChevronRight } from "lucide-react";
 import type { LegalCase, Hearing } from "@/lib/types";
 import { caseCode, formatDate, splitHearings } from "@/lib/format";
@@ -74,7 +73,7 @@ export function CaseTable({
           const tier = urgencyTier(next?.date);
           const borderClass = PRIORITY_URGENCY_BORDER[c.priority]?.[tier] ?? PRIORITY_BORDER[c.priority] ?? "border-l-line";
           return (
-            <Link
+            <a
               key={c.id}
               href={`/cases/${c.id}`}
               className={`flex items-start gap-3 rounded-xl border-l-4 bg-background/60 p-3.5 transition-colors hover:bg-background ${borderClass}`}
@@ -103,7 +102,7 @@ export function CaseTable({
                   <PriorityBadge priority={c.priority} />
                 </span>
               </span>
-            </Link>
+            </a>
           );
         })}
       </div>
@@ -119,7 +118,7 @@ export function CaseTable({
         const code = caseCode(c.caseType);
         const { next } = splitHearings(hearingsByCaseId?.get(c.id));
         return (
-          <Link
+          <a
             key={c.id}
             href={`/cases/${c.id}`}
             className="group relative flex items-start gap-3.5 overflow-hidden rounded-2xl border border-line bg-surface p-4 pl-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md sm:items-center sm:gap-4 sm:p-4 sm:pl-6"
@@ -163,7 +162,7 @@ export function CaseTable({
               size={18}
               className="hidden shrink-0 text-faint transition-colors group-hover:text-brand-600 sm:block"
             />
-          </Link>
+          </a>
         );
       })}
     </div>

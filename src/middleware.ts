@@ -59,7 +59,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on everything except static assets, images, and public draft/PDF files.
-    "/((?!_next/static|_next/image|favicon.ico|drafts/.*\\.docx|major-acts-pdfs/.*\\.pdf|pdfjs/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Run on everything except static assets, images, public draft/PDF
+    // files, and the PWA infrastructure files (manifest, service worker,
+    // offline fallback page) — those must always be publicly reachable or
+    // the service worker can't even register for a signed-out visitor,
+    // which breaks installability entirely.
+    "/((?!_next/static|_next/image|favicon.ico|drafts/.*\\.docx|major-acts-pdfs/.*\\.pdf|pdfjs/|manifest\\.webmanifest|sw\\.js|offline\\.html|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

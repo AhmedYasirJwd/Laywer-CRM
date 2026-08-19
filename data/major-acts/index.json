@@ -1,11 +1,11 @@
 [
-    {
-  "slug": "arbitration-act-1940",
-  "act": "Arbitration Act, 1940",
-  "pdfFile": "Arbitration Act, 1940.pdf",
-  "sectionCount": 50,
-  "hasIndex": true
-},
+  {
+    "slug": "arbitration-act-1940",
+    "act": "Arbitration Act, 1940",
+    "pdfFile": "Arbitration Act, 1940.pdf",
+    "sectionCount": 50,
+    "hasIndex": true
+  },
   {
     "slug": "civil-procedure-code",
     "act": "Civil Procedure Code",
@@ -14,8 +14,8 @@
     "hasIndex": true
   },
   {
-    "slug": "Code-of-criminal-procedure-1898",
-    "act": "Code of criminal procedure 1898",
+    "slug": "code-of-criminal-procedure-1898",
+    "act": "Code of Criminal Procedure, 1898",
     "pdfFile": "Code_of_criminal_procedure_1898.pdf",
     "sectionCount": 493,
     "hasIndex": true

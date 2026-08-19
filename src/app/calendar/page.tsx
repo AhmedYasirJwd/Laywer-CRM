@@ -1,9 +1,7 @@
-import { getHearings, getCases } from "@/lib/db";
 import { CalendarExplorer } from "@/components/CalendarExplorer";
 
-export const dynamic = "force-dynamic";
-
-export default async function CalendarPage() {
-  const [hearings, cases] = await Promise.all([getHearings(), getCases()]);
-  return <CalendarExplorer hearings={hearings} cases={cases} />;
+// Static shell — CalendarExplorer loads hearings/cases client-side
+// (IndexedDB first, then network) so the route works offline once visited.
+export default function CalendarPage() {
+  return <CalendarExplorer />;
 }

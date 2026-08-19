@@ -2,7 +2,6 @@
 
 import { useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
-import Link from "next/link";
 
 export function SectionCard({
   title,
@@ -27,9 +26,9 @@ export function SectionCard({
         <h2 className="text-base font-semibold text-ink">{title}</h2>
         <div className="flex items-center gap-3">
           {viewAllHref && (
-            <Link href={viewAllHref} className="text-sm font-medium text-brand-600 hover:text-brand-700">
+            <a href={viewAllHref} className="text-sm font-medium text-brand-600 hover:text-brand-700">
               View All
-            </Link>
+            </a>
           )}
           {collapsible && (
             <button

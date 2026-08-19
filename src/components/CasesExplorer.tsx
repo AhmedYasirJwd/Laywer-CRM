@@ -1,24 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Plus, Search, ChevronDown, X } from "lucide-react";
 import type { LegalCase, CaseStatus, Hearing } from "@/lib/types";
 import { CASE_TYPES } from "@/lib/types";
 import { CaseTable } from "./CaseTable";
 import { PageHeader } from "./PageHeader";
+import { useOfflineCollection } from "@/hooks/useOfflineData";
 
 const FILTERS: Array<CaseStatus | "All"> = ["All", "Active", "Pending", "Closed", "Disposed"];
 
-export function CasesExplorer({
-  initialCases,
-  initialStatus = "All",
-  hearings = [],
-}: {
-  initialCases: LegalCase[];
-  initialStatus?: (typeof FILTERS)[number];
-  hearings?: Hearing[];
-}) {
+export function CasesExplorer() {
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get("status");
+  const initialStatus = (FILTERS as string[]).includes(statusParam ?? "")
+    ? (statusParam as (typeof FILTERS)[number])
+    : "All";
+
+  const { data: cases, isOffline } = useOfflineCollection<LegalCase>("cases", "/api/cases");
+  const { data: hearings } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
+
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>(initialStatus);
   const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -34,7 +36,7 @@ export function CasesExplorer({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return initialCases
+    return cases
       .filter((c) => (filter === "All" ? true : c.status === filter))
       .filter((c) => (typeFilter === "All" ? true : c.caseType === typeFilter))
       .filter((c) =>
@@ -45,21 +47,27 @@ export function CasesExplorer({
           : true
       )
       .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated));
-  }, [initialCases, query, filter, typeFilter]);
+  }, [cases, query, filter, typeFilter]);
+
+  const neverSynced = isOffline && cases.length === 0;
 
   return (
     <div>
       <PageHeader
         title="Cases"
-        subtitle={`${initialCases.length} total cases`}
+        subtitle={`${cases.length} total cases`}
         action={
-          <Link
+          // Plain <a>, not next/link — this route needs to work offline,
+          // and only a real navigation is caught by the service worker's
+          // fetch handler (see public/sw.js and CaseListItem.tsx).
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
+          <a
             href="/cases/new"
             className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/30 transition-all hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-md active:translate-y-0 active:scale-95"
           >
             <Plus size={16} />
             <span className="hidden sm:inline">New Case</span>
-          </Link>
+          </a>
         }
       />
 
@@ -129,12 +137,18 @@ export function CasesExplorer({
         </div>
       </div>
 
-      <CaseTable
-        cases={filtered}
-        variant="full"
-        emptyMessage="No cases match your search."
-        hearingsByCaseId={hearingsByCaseId}
-      />
+      {neverSynced ? (
+        <div className="rounded-2xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted">
+          This information isn&apos;t available offline yet. Connect to the internet once to load your cases.
+        </div>
+      ) : (
+        <CaseTable
+          cases={filtered}
+          variant="full"
+          emptyMessage="No cases match your search."
+          hearingsByCaseId={hearingsByCaseId}
+        />
+      )}
     </div>
   );
 }

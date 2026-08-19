@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { Search as SearchIcon, ChevronRight } from "lucide-react";
 import type { LegalCase, Task } from "@/lib/types";
 import { PageHeader } from "./PageHeader";
@@ -52,7 +51,7 @@ export function SearchExplorer({ cases, tasks }: { cases: LegalCase[]; tasks: Ta
             <div className="card p-5">
               <h2 className="mb-3 text-sm font-semibold text-ink">Cases ({matchedCases.length})</h2>
               {matchedCases.map((c) => (
-                <Link
+                <a
                   key={c.id}
                   href={`/cases/${c.id}`}
                   className="flex items-center gap-3 border-b border-line py-3 last:border-b-0 last:pb-0 first:pt-0"
@@ -68,7 +67,7 @@ export function SearchExplorer({ cases, tasks }: { cases: LegalCase[]; tasks: Ta
                   </div>
                   <StatusBadge status={c.status} />
                   <ChevronRight size={16} className="shrink-0 text-faint" />
-                </Link>
+                </a>
               ))}
             </div>
           )}

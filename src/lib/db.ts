@@ -119,7 +119,7 @@ export async function getCaseById(id: string): Promise<LegalCase | undefined> {
 
 export async function createCase(
   data: Omit<LegalCase, "id" | "lastUpdated" | "timeline" | "parties"> &
-    Partial<Pick<LegalCase, "timeline" | "parties">>
+    Partial<Pick<LegalCase, "id" | "timeline" | "parties">>
 ): Promise<LegalCase> {
   const supabase = await createSupabaseServerClient();
   const userId = await requireUserId();
@@ -127,6 +127,12 @@ export async function createCase(
   const { data: inserted, error } = await supabase
     .from("cases")
     .insert({
+      // Lets an offline-created case keep the id it was given on the
+      // device (see saveCase in src/lib/case-sync.ts) instead of getting a
+      // second, different id once it reaches the server — otherwise the
+      // locally-cached copy and the synced copy would end up as two
+      // separate cases.
+      ...(data.id ? { id: data.id } : {}),
       user_id: userId,
       case_number: data.caseNumber,
       title: data.title,

@@ -1,0 +1,7 @@
+# Never let git rewrite line endings in these files — pdf.js ships a
+# minified worker file that must stay byte-identical to what pdfjs-dist
+# publishes. A previous autocrlf conversion corrupted it (CRLF injected
+# into a minified single-line-ish file), which broke PDF rendering for
+# some Major Acts. Treat these as binary/untouched:
+public/pdfjs/*.mjs -text -diff
+*.pdf -text -diff binary

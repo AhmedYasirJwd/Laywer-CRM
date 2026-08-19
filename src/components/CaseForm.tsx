@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, AlertCircle, WifiOff } from "lucide-react";
 import type { CaseStatus, LegalCase, Priority } from "@/lib/types";
 import { CASE_ROLES, CASE_TYPES, CASE_STAGES } from "@/lib/types";
 import { Autocomplete } from "./Autocomplete";
 import { KARACHI_COURTS } from "@/lib/karachi-courts";
+import { saveCase } from "@/lib/case-sync";
 
 const STATUSES: CaseStatus[] = ["Active", "Pending", "Closed", "Disposed"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
@@ -73,20 +74,96 @@ interface PartyDraft {
   email: string;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  error,
+  children,
+  name,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+  /** Marks the field so a failed submit can scroll straight to it — see
+   *  scrollToFirstError in CaseForm. Only needed on fields that block saving. */
+  name?: string;
+}) {
   return (
-    <label className="block">
+    <label className="block" data-field={name}>
       <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
       {children}
+      {error && (
+        <span className="mt-1 flex items-center gap-1 text-xs text-red-600">
+          <AlertCircle size={12} />
+          {error}
+        </span>
+      )}
     </label>
   );
 }
 
+const REQUIRED_FIELD_ORDER: Array<keyof FieldErrors> = ["caseNumber", "title", "court", "filingDate"];
+const REQUIRED_FIELD_LABEL: Record<keyof FieldErrors, string> = {
+  caseNumber: "Case Number",
+  title: "Case Title",
+  court: "Court",
+  filingDate: "Filing Date",
+};
+
+/** Jumps to and focuses the first invalid required field, so the person
+ *  never has to hunt for what's blocking save — the page does it for them. */
+function scrollToFirstError(errors: FieldErrors) {
+  const firstKey = REQUIRED_FIELD_ORDER.find((k) => errors[k]);
+  if (!firstKey) return;
+  const el = document.querySelector<HTMLElement>(`[data-field="${firstKey}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.querySelector<HTMLElement>("input, textarea, select")?.focus();
+}
+
 const inputClass =
   "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-faint focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600";
+const inputErrorClass =
+  "w-full rounded-xl border border-red-400 bg-red-50/40 px-3.5 py-2.5 text-sm text-ink placeholder:text-faint focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500";
 
 function emptyParty(role: string = "Other"): PartyDraft {
   return { key: crypto.randomUUID(), name: "", role, phone: "", email: "" };
+}
+
+interface FieldErrors {
+  caseNumber?: string;
+  title?: string;
+  court?: string;
+  filingDate?: string;
+}
+
+function validateForm(form: {
+  caseNumber: string;
+  title: string;
+  court: string;
+  filingDate: string;
+}): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!form.caseNumber.trim()) errors.caseNumber = "Case number is required.";
+  if (!form.title.trim()) errors.title = "Case title is required.";
+  if (!form.court.trim()) errors.court = "Court is required.";
+  if (!form.filingDate) {
+    errors.filingDate = "Filing date is required.";
+  } else if (Number.isNaN(new Date(form.filingDate).getTime())) {
+    errors.filingDate = "That doesn't look like a valid date.";
+  }
+  return errors;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Loose on purpose — just enough to catch "clearly not a phone number", not
+// to enforce a specific country format.
+const PHONE_RE = /^[0-9+()\-\s]{7,}$/;
+
+function validateParty(p: PartyDraft): { phone?: string; email?: string } {
+  const errors: { phone?: string; email?: string } = {};
+  if (p.phone.trim() && !PHONE_RE.test(p.phone.trim())) errors.phone = "Doesn't look like a valid phone number.";
+  if (p.email.trim() && !EMAIL_RE.test(p.email.trim())) errors.email = "Doesn't look like a valid email.";
+  return errors;
 }
 
 export function CaseForm({ initial }: { initial?: LegalCase }) {
@@ -94,6 +171,14 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
   const isEdit = Boolean(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedOfflineNotice, setSavedOfflineNotice] = useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<keyof FieldErrors, boolean>>>({});
+
+  // A create's id is decided up front (not by the server) so the case can
+  // be saved to the device and opened immediately, online or off — see
+  // src/lib/case-sync.ts.
+  const idRef = useRef(initial?.id ?? crypto.randomUUID());
 
   const [form, setForm] = useState({
     caseNumber: initial?.caseNumber ?? "",
@@ -118,6 +203,29 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
         }))
       : [emptyParty("Plaintiff"), emptyParty("Defendant")]
   );
+  const [partyTouched, setPartyTouched] = useState<Record<string, { phone?: boolean; email?: boolean }>>({});
+
+  const fieldErrors = useMemo(() => validateForm(form), [form]);
+  const partyErrors = useMemo(() => {
+    const map: Record<string, { phone?: string; email?: string }> = {};
+    for (const p of parties) map[p.key] = validateParty(p);
+    return map;
+  }, [parties]);
+  // Party phone/email are shown as inline warnings but never block saving —
+  // only the four required case fields do. Blocking on a legacy phone
+  // number someone didn't even touch (while editing an old case) is exactly
+  // the kind of "why won't this just save" friction to avoid.
+  const isValid = Object.keys(fieldErrors).length === 0;
+
+  // Show a field's error once the person has left it (or after a submit
+  // attempt surfaces everything at once) — not before they've had a chance
+  // to type into it.
+  function shown<K extends keyof FieldErrors>(key: K): string | undefined {
+    return (touched[key] || attemptedSubmit) ? fieldErrors[key] : undefined;
+  }
+  function partyShown(key: string, field: "phone" | "email"): string | undefined {
+    return (partyTouched[key]?.[field] || attemptedSubmit) ? partyErrors[key]?.[field] : undefined;
+  }
 
   // The case title auto-fills as "{Party 1} vs {Party 2}" while the user hasn't
   // typed a custom title themselves. Editing an existing case's title counts as
@@ -158,8 +266,19 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
+    setAttemptedSubmit(true);
     setError(null);
+    setSavedOfflineNotice(false);
+
+    if (!isValid) {
+      // No network round-trip wasted on a request that would just fail the
+      // same checks server-side — instead jump straight to what's wrong so
+      // the person doesn't have to scan the whole form looking for it.
+      scrollToFirstError(fieldErrors);
+      return;
+    }
+
+    setSubmitting(true);
 
     const partiesPayload = parties
       .filter((p) => p.name.trim())
@@ -172,9 +291,10 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       }));
 
     const payload = {
-      caseNumber: form.caseNumber,
-      title: form.title,
-      court: form.court,
+      id: idRef.current,
+      caseNumber: form.caseNumber.trim(),
+      title: form.title.trim(),
+      court: form.court.trim(),
       filingDate: form.filingDate,
       caseType: form.caseType,
       counselFor: form.counselFor,
@@ -184,36 +304,93 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
       parties: partiesPayload,
     };
 
-    try {
-      const res = await fetch(isEdit ? `/api/cases/${initial!.id}` : "/api/cases", {
-        method: isEdit ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Request failed");
-      const saved = await res.json();
-      router.push(`/cases/${saved.id}`);
-      router.refresh();
-    } catch {
-      setError("Something went wrong. Please try again.");
+    const localCase: LegalCase = {
+      id: idRef.current,
+      caseNumber: payload.caseNumber,
+      title: payload.title,
+      court: payload.court,
+      filingDate: payload.filingDate,
+      caseType: payload.caseType,
+      counselFor: payload.counselFor,
+      stage: payload.stage,
+      status: payload.status,
+      priority: payload.priority,
+      lastUpdated: new Date().toISOString(),
+      parties: partiesPayload,
+      timeline: initial?.timeline ?? [
+        {
+          id: crypto.randomUUID(),
+          title: "Case Filed",
+          date: payload.filingDate,
+          description: `Case has been filed in ${payload.court}.`,
+          type: "filed",
+        },
+      ],
+      notes: initial?.notes,
+    };
+
+    const result = await saveCase(localCase, isEdit ? "update" : "create", payload);
+
+    if (!result.ok) {
+      setError(result.error);
       setSubmitting(false);
+      return;
     }
+
+    if (!result.synced) setSavedOfflineNotice(true);
+    // Hard navigation, not router.push: the case detail page is one of the
+    // offline-enabled routes (see public/sw.js), and only a real navigation
+    // is guaranteed to be caught by the service worker when there's no
+    // network. router.push's client-side RSC fetch is a plain network
+    // request the service worker doesn't intercept, so right after saving
+    // offline it could fail silently and strand the person on the form —
+    // even though the case itself was already saved to the device.
+    window.location.href = `/cases/${idRef.current}`;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {error && <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      {error && (
+        <p className="flex items-start gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          {error}
+        </p>
+      )}
+      {attemptedSubmit && !isValid && (
+        <p className="flex items-start gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          <span>
+            {Object.keys(fieldErrors).length === 1
+              ? "One field needs your attention — it's highlighted below."
+              : `${Object.keys(fieldErrors).length} fields need your attention — they're highlighted below.`}{" "}
+            <button
+              type="button"
+              onClick={() => scrollToFirstError(fieldErrors)}
+              className="font-semibold underline underline-offset-2"
+            >
+              Take me there
+            </button>
+          </span>
+        </p>
+      )}
+      {savedOfflineNotice && (
+        <p className="flex items-start gap-2 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-700">
+          <WifiOff size={16} className="mt-0.5 shrink-0" />
+          Saved on this device. It&apos;ll sync automatically once you&apos;re back online.
+        </p>
+      )}
 
       <div className="card space-y-4 p-5">
         <h2 className="text-sm font-semibold text-ink">Case Details</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Case Number">
+          <Field label="Case Number" name="caseNumber" error={shown("caseNumber")}>
             <input
               required
-              className={inputClass}
+              className={shown("caseNumber") ? inputErrorClass : inputClass}
               placeholder="e.g. 123/2025"
               value={form.caseNumber}
               onChange={(e) => set("caseNumber", e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, caseNumber: true }))}
             />
           </Field>
           <Field label="Case Type">
@@ -225,16 +402,17 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
               options={CASE_TYPES}
             />
           </Field>
-          <Field label="Case Title (e.g. Party vs Party)">
+          <Field label="Case Title (e.g. Party vs Party)" name="title" error={shown("title")}>
             <input
               required
-              className={inputClass}
+              className={shown("title") ? inputErrorClass : inputClass}
               placeholder="Ali Khan vs Ahmed & Co."
               value={form.title}
               onChange={(e) => {
                 setTitleTouched(true);
                 set("title", e.target.value);
               }}
+              onBlur={() => setTouched((t) => ({ ...t, title: true }))}
             />
             <p className="mt-1 text-xs text-faint">
               {titleTouched ? (
@@ -253,12 +431,15 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
               )}
             </p>
           </Field>
-          <Field label="Court">
+          <Field label="Court" name="court" error={shown("court")}>
             <Autocomplete
               required
               placeholder="Start typing to search Karachi courts..."
               value={form.court}
-              onChange={(v) => set("court", v)}
+              onChange={(v) => {
+                set("court", v);
+                setTouched((t) => ({ ...t, court: true }));
+              }}
               options={KARACHI_COURTS}
             />
           </Field>
@@ -273,13 +454,14 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
               ))}
             </select>
           </Field>
-          <Field label="Filing Date">
+          <Field label="Filing Date" name="filingDate" error={shown("filingDate")}>
             <input
               required
               type="date"
-              className={inputClass}
+              className={shown("filingDate") ? inputErrorClass : inputClass}
               value={form.filingDate}
               onChange={(e) => set("filingDate", e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, filingDate: true }))}
             />
           </Field>
           <Field label="Case Stage">
@@ -374,18 +556,24 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
                       ))}
                     </select>
                   </Field>
-                  <Field label="Phone">
+                  <Field label="Phone" error={partyShown(p.key, "phone")}>
                     <input
-                      className={inputClass}
+                      className={partyShown(p.key, "phone") ? inputErrorClass : inputClass}
                       value={p.phone}
                       onChange={(e) => updateParty(p.key, "phone", e.target.value)}
+                      onBlur={() =>
+                        setPartyTouched((t) => ({ ...t, [p.key]: { ...t[p.key], phone: true } }))
+                      }
                     />
                   </Field>
-                  <Field label="Email">
+                  <Field label="Email" error={partyShown(p.key, "email")}>
                     <input
-                      className={inputClass}
+                      className={partyShown(p.key, "email") ? inputErrorClass : inputClass}
                       value={p.email}
                       onChange={(e) => updateParty(p.key, "email", e.target.value)}
+                      onBlur={() =>
+                        setPartyTouched((t) => ({ ...t, [p.key]: { ...t[p.key], email: true } }))
+                      }
                     />
                   </Field>
                 </div>
@@ -405,7 +593,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
         </button>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || (attemptedSubmit && !isValid)}
           className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {submitting ? "Saving..." : isEdit ? "Save Changes" : "Create Case"}
