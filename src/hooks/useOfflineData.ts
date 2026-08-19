@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as offlineDb from "@/lib/offline-db";
+import { reconcileWithPending } from "@/lib/case-sync";
 import type { LegalCase, Hearing, Task, CaseDocument } from "@/lib/types";
 
 interface CollectionState<T> {
@@ -28,6 +29,19 @@ export function useOfflineCollection<T extends { id: string }>(
   });
   const mounted = useRef(true);
 
+  // Cheap, local-only re-read — no network involved. Used to pick up a save
+  // or an outbox sync the instant it happens on-device, instead of waiting
+  // for the next mount or network refresh to notice.
+  const loadLocal = useCallback(async () => {
+    const [cached, syncedAt] = await Promise.all([
+      offlineDb.getAll<T>(store),
+      offlineDb.getSyncedAt(store),
+    ]);
+    if (mounted.current) {
+      setState((s) => ({ ...s, data: cached, syncedAt, loading: false }));
+    }
+  }, [store]);
+
   const load = useCallback(async () => {
     const [cached, syncedAt] = await Promise.all([
       offlineDb.getAll<T>(store),
@@ -45,7 +59,15 @@ export function useOfflineCollection<T extends { id: string }>(
     try {
       const res = await fetch(apiUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`${res.status}`);
-      const fresh: T[] = await res.json();
+      let fresh: T[] = await res.json();
+      // Cases specifically can have on-device writes the server hasn't
+      // seen yet (still queued in the outbox) — never let a background
+      // refresh make those disappear just because they're not in the
+      // server's response yet. Mobile storage stays the source of truth
+      // for anything still pending; the cloud is the secondary copy.
+      if (store === "cases") {
+        fresh = (await reconcileWithPending(fresh as unknown as LegalCase[])) as unknown as T[];
+      }
       await offlineDb.replaceAll(store, fresh);
       if (mounted.current) {
         setState({ data: fresh, loading: false, isOffline: false, syncedAt: Date.now() });
@@ -61,12 +83,17 @@ export function useOfflineCollection<T extends { id: string }>(
     mounted.current = true;
     load();
     const onReconnect = () => load();
+    // A save, or the outbox draining, both write straight to IndexedDB —
+    // reflect that immediately rather than only on the next mount/fetch.
+    const onLocalChange = () => loadLocal();
     window.addEventListener("online", onReconnect);
+    window.addEventListener(`lexcase:${store}-changed`, onLocalChange);
     return () => {
       mounted.current = false;
       window.removeEventListener("online", onReconnect);
+      window.removeEventListener(`lexcase:${store}-changed`, onLocalChange);
     };
-  }, [load]);
+  }, [load, loadLocal, store]);
 
   return {
     ...state,
@@ -173,12 +200,22 @@ export function useOfflineCaseDetail(caseId: string): CaseDetailState & { refres
     mounted.current = true;
     load();
     const onReconnect = () => load();
+    // If a background outbox sync updates this exact case while its detail
+    // page is open (e.g. it finally reaches the server a minute after the
+    // person moved on and back), pick that up from IndexedDB immediately
+    // instead of showing stale data until the next navigation.
+    const onLocalChange = async () => {
+      const local = await offlineDb.getOne<LegalCase>("cases", caseId);
+      if (mounted.current && local) setState((s) => ({ ...s, legalCase: local }));
+    };
     window.addEventListener("online", onReconnect);
+    window.addEventListener("lexcase:cases-changed", onLocalChange);
     return () => {
       mounted.current = false;
       window.removeEventListener("online", onReconnect);
+      window.removeEventListener("lexcase:cases-changed", onLocalChange);
     };
-  }, [load]);
+  }, [load, caseId]);
 
   return { ...state, refresh: load };
 }

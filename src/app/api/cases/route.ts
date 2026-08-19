@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCases, createCase } from "@/lib/db";
+import { getCases, getCaseById, createCase } from "@/lib/db";
 
 export async function GET() {
   const cases = await getCases();
@@ -16,7 +16,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // A retried outbox entry (e.g. the first attempt's response never made it
+  // back to the device even though the insert succeeded) would otherwise
+  // create a duplicate case — if this id already exists, treat it as
+  // already-synced and hand that case back instead of erroring or doubling it up.
+  if (body.id) {
+    const existing = await getCaseById(body.id);
+    if (existing) return NextResponse.json(existing, { status: 200 });
+  }
+
   const created = await createCase({
+    id: body.id,
     caseNumber: body.caseNumber,
     title: body.title,
     court: body.court,

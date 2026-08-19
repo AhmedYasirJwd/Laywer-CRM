@@ -1,27 +1,14 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { getCaseById } from "@/lib/db";
-import { CaseForm } from "@/components/CaseForm";
+"use client";
 
-export default async function EditCasePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const item = await getCaseById(id);
-  if (!item) notFound();
+import { use } from "react";
+import { EditCaseClient } from "@/components/EditCaseClient";
 
-  return (
-    <div>
-      <div className="mb-5">
-        <Link
-          href={`/cases/${item.id}`}
-          className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
-        >
-          <ArrowLeft size={17} />
-          Back to Case Details
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-ink sm:text-2xl">Edit Case</h1>
-      </div>
-      <CaseForm initial={item} />
-    </div>
-  );
+// Client component, no server data fetching — same reasoning as the case
+// detail page: the shell must be identical to what the URL's own cached
+// copy contains, and the actual case data comes from IndexedDB via
+// useOfflineCaseDetail, so editing works offline for any previously-opened
+// case.
+export default function EditCasePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  return <EditCaseClient caseId={id} />;
 }

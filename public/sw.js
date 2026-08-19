@@ -4,13 +4,15 @@
 // (Settings, Drafts, Major Acts, Search, every create/edit form) stay
 // server-rendered and online-only — deliberately not cached here.
 //
-// Five routes have real offline support, backed by IndexedDB in the app
+// Nine routes have real offline support, backed by IndexedDB in the app
 // itself (see src/hooks/useOfflineData.ts) rather than by caching API
 // responses in here: Dashboard (/), Cases (/cases), Case Detail
-// (/cases/:id), Calendar (/calendar), Tasks (/tasks). Their HTML/JS shell
-// is identical for every request (no server-embedded data), so it's safe
-// to cache network-first and replay if the network is unreachable — the
-// shell then reads the real data straight out of IndexedDB.
+// (/cases/:id), New Case (/cases/new), Edit Case (/cases/:id/edit),
+// Calendar (/calendar), Tasks (/tasks). Their HTML/JS shell is identical
+// for every request with no server-embedded data (New Case) or is
+// per-URL-cached the first time it's opened online (Case Detail, Edit
+// Case — see below), so it's safe to replay if the network is unreachable
+// — the shell then reads/writes the real data straight out of IndexedDB.
 //
 // What this file does NOT do, on purpose:
 //   - Cache /api/* responses. Those can contain another user's-eyes-only
@@ -20,7 +22,7 @@
 //   - Cache documents/PDFs automatically — see the explicit "Download for
 //     offline" affordance in the Documents section instead.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const STATIC_CACHE = `lexcase-static-${VERSION}`;
 const SHELL_CACHE = `lexcase-shell-${VERSION}`;
 
@@ -28,7 +30,28 @@ const PRECACHE_URLS = ["/offline.html", "/manifest.webmanifest", "/icons/icon-19
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
+    (async () => {
+      const staticCache = await caches.open(STATIC_CACHE);
+      await staticCache.addAll(PRECACHE_URLS);
+
+      // These routes' HTML/JS shell doesn't depend on any specific case's
+      // data, so — unlike Case Detail/Edit — there's no reason to wait for
+      // a first online visit before they work offline. Warm them now.
+      const shellCache = await caches.open(SHELL_CACHE);
+      await Promise.all(
+        ["/", "/cases", "/calendar", "/tasks", "/cases/new"].map(async (path) => {
+          try {
+            const response = await fetch(path);
+            if (response.ok) await shellCache.put(path, response);
+          } catch {
+            // No network at install time — these'll get cached on the
+            // first real online visit instead, same as before.
+          }
+        })
+      );
+
+      await self.skipWaiting();
+    })()
   );
 });
 
@@ -56,12 +79,21 @@ function isBrandAsset(url) {
   );
 }
 
-// The 5 routes with real offline data support. Matched on pathname only
-// (query strings, e.g. /cases?status=Active, still match /cases).
+// The offline-enabled routes. Matched on pathname only (query strings,
+// e.g. /cases?status=Active, still match /cases).
 function isOfflineShellRoute(pathname) {
-  if (pathname === "/" || pathname === "/cases" || pathname === "/calendar" || pathname === "/tasks") return true;
+  if (
+    pathname === "/" ||
+    pathname === "/cases" ||
+    pathname === "/calendar" ||
+    pathname === "/tasks" ||
+    pathname === "/cases/new"
+  )
+    return true;
   const caseDetail = /^\/cases\/([^/]+)$/.exec(pathname);
-  return Boolean(caseDetail && caseDetail[1] !== "new");
+  if (caseDetail && caseDetail[1] !== "new") return true;
+  const caseEdit = /^\/cases\/([^/]+)\/edit$/.exec(pathname);
+  return Boolean(caseEdit);
 }
 
 self.addEventListener("fetch", (event) => {

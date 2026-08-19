@@ -12,9 +12,21 @@
 //                  can say *when* the offline data is from
 
 const DB_NAME = "lexcase-offline";
-const DB_VERSION = 1;
-const STORES = ["cases", "hearings", "tasks", "documents", "meta"] as const;
+const DB_VERSION = 2;
+const STORES = ["cases", "hearings", "tasks", "documents", "meta", "outbox"] as const;
 type StoreName = (typeof STORES)[number];
+
+/** A case create/edit made while offline (or while the server was
+ *  unreachable), waiting to be sent once connectivity is back. */
+export interface OutboxEntry {
+  id: string; // == the case's id, since a case has at most one pending write at a time
+  op: "create" | "update";
+  caseId: string;
+  payload: Record<string, unknown>;
+  createdAt: number;
+  attempts: number;
+  lastError?: string;
+}
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -49,6 +61,18 @@ async function tx<T>(store: StoreName, mode: IDBTransactionMode, fn: (s: IDBObje
   });
 }
 
+/** Lets any mounted screen react the instant a store changes — a save, a
+ *  background sync draining the outbox, another tab, etc. — by re-reading
+ *  IndexedDB (cheap, local, no network) rather than only refreshing on
+ *  mount or on the next successful fetch. This is what keeps the on-device
+ *  data authoritative in the UI: a screen never has to wait for the cloud
+ *  round-trip to know what actually happened locally. */
+function notifyChange(store: StoreName): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(`lexcase:${store}-changed`));
+  }
+}
+
 /** Replace the entire contents of a store with a fresh list (used for the
  *  three full-collection resources: cases, hearings, tasks). */
 export async function replaceAll<T extends { id: string }>(store: StoreName, records: T[]): Promise<void> {
@@ -62,12 +86,19 @@ export async function replaceAll<T extends { id: string }>(store: StoreName, rec
     transaction.onerror = () => reject(transaction.error);
   });
   await setMeta(store, Date.now());
+  notifyChange(store);
 }
 
 /** Upsert a single record without touching the rest of the store (used for
  *  per-case documents, and for updating one case/hearing/task in place). */
 export async function put<T extends { id: string }>(store: StoreName, record: T): Promise<void> {
   await tx(store, "readwrite", (s) => s.put(record));
+  notifyChange(store);
+}
+
+export async function deleteOne(store: StoreName, id: string): Promise<void> {
+  await tx(store, "readwrite", (s) => s.delete(id));
+  notifyChange(store);
 }
 
 export async function getAll<T>(store: StoreName): Promise<T[]> {

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { CaseSyncManager } from "@/components/CaseSyncManager";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="min-h-full bg-background text-ink">
         <AppShell>{children}</AppShell>
         <ServiceWorkerRegister />
+        <CaseSyncManager />
         <Analytics />
       </body>
     </html>

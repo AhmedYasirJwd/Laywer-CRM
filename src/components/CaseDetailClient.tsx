@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { ArrowLeft, Pencil, ChevronRight, FolderX } from "lucide-react";
 import { formatDate, formatTime, caseCode } from "@/lib/format";
 import { StatusBadge } from "@/components/Badge";
@@ -93,17 +92,14 @@ export function CaseDetailClient({ caseId }: { caseId: string }) {
         <h1 className="hidden text-base font-semibold text-ink sm:block">Case Details</h1>
         <div className="flex items-center gap-2">
           <EndCaseButton caseId={item.id} status={item.status} />
-          <Link
-            href={isOffline ? "#" : `/cases/${item.id}/edit`}
-            aria-disabled={isOffline}
-            title={isOffline ? "Requires an internet connection" : undefined}
-            className={`flex items-center gap-1.5 rounded-xl bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-ink/90 ${
-              isOffline ? "pointer-events-none opacity-40" : ""
-            }`}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- intentional: forces a real navigation so the service worker can serve/cache the offline shell */}
+          <a
+            href={`/cases/${item.id}/edit`}
+            className="flex items-center gap-1.5 rounded-xl bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-ink/90"
           >
             <Pencil size={14} />
             Edit
-          </Link>
+          </a>
         </div>
       </div>
 
