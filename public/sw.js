@@ -20,7 +20,7 @@
 //   - Cache documents/PDFs automatically — see the explicit "Download for
 //     offline" affordance in the Documents section instead.
 
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC_CACHE = `lexcase-static-${VERSION}`;
 const SHELL_CACHE = `lexcase-shell-${VERSION}`;
 
@@ -102,12 +102,15 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate" && url.origin === self.location.origin) {
-    // Offline-enabled routes: network-first, cache the shell on success (by
-    // pathname, so /cases/abc123 and /cases/xyz789 share one cached shell —
-    // any previously-opened case can reuse it; the actual per-case data
-    // comes from IndexedDB, not from this cached HTML).
+    // Offline-enabled routes: network-first, cache the shell on success.
+    // Cached per-URL (not collapsed to one shared key) — even though this
+    // route is a client component, Next still bakes that request's resolved
+    // route params into the initial HTML/flight payload it serves. Reusing
+    // one entry for every case id would replay a stale case's data under a
+    // different case's URL. Each case's shell is only available offline
+    // once that specific case has actually been opened while online.
     if (isOfflineShellRoute(url.pathname)) {
-      const cacheKey = /^\/cases\/([^/]+)$/.test(url.pathname) ? "/cases/__shell__" : url.pathname;
+      const cacheKey = url.pathname;
       event.respondWith(
         (async () => {
           const cache = await caches.open(SHELL_CACHE);
