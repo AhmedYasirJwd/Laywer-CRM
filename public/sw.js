@@ -11,8 +11,11 @@
 // Calendar (/calendar), Tasks (/tasks). Their HTML/JS shell is identical
 // for every request with no server-embedded data (New Case) or is
 // per-URL-cached the first time it's opened online (Case Detail, Edit
-// Case — see below), so it's safe to replay if the network is unreachable
-// — the shell then reads/writes the real data straight out of IndexedDB.
+// Case), so it's safe to replay if the network is unreachable — the shell
+// then reads/writes the real data straight out of IndexedDB. Case Detail
+// and Edit also fall back to a placeholder-id template (see
+// CASE_TEMPLATE_ID below) with the real id swapped in, so a case created
+// while offline opens directly instead of hitting offline.html.
 //
 // What this file does NOT do, on purpose:
 //   - Cache /api/* responses. Those can contain another user's-eyes-only
@@ -22,11 +25,24 @@
 //   - Cache documents/PDFs automatically — see the explicit "Download for
 //     offline" affordance in the Documents section instead.
 
-const VERSION = "v4";
+const VERSION = "v5";
 const STATIC_CACHE = `lexcase-static-${VERSION}`;
 const SHELL_CACHE = `lexcase-shell-${VERSION}`;
 
 const PRECACHE_URLS = ["/offline.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
+
+// A case created while offline gets a real UUID (assigned client-side —
+// see CaseForm) that the server has never seen, so there's no way to have
+// warmed a cache entry for that exact URL in advance. Rather than send a
+// brand-new case straight to offline.html, we keep one "template" shell
+// per case route, fetched once for this placeholder id, and stamp the
+// real id into it on the fly (see buildFromTemplate below). The HTML/JS
+// besides that id string is identical for every case — it's a client
+// component that reads the actual case data out of IndexedDB — so the
+// swap is safe and doesn't require a network round-trip.
+const CASE_TEMPLATE_ID = "00000000-0000-4000-8000-000000000000";
+const CASE_DETAIL_TEMPLATE_PATH = `/cases/${CASE_TEMPLATE_ID}`;
+const CASE_EDIT_TEMPLATE_PATH = `/cases/${CASE_TEMPLATE_ID}/edit`;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -39,7 +55,15 @@ self.addEventListener("install", (event) => {
       // a first online visit before they work offline. Warm them now.
       const shellCache = await caches.open(SHELL_CACHE);
       await Promise.all(
-        ["/", "/cases", "/calendar", "/tasks", "/cases/new"].map(async (path) => {
+        [
+          "/",
+          "/cases",
+          "/calendar",
+          "/tasks",
+          "/cases/new",
+          CASE_DETAIL_TEMPLATE_PATH,
+          CASE_EDIT_TEMPLATE_PATH,
+        ].map(async (path) => {
           try {
             const response = await fetch(path);
             if (response.ok) await shellCache.put(path, response);
@@ -54,6 +78,23 @@ self.addEventListener("install", (event) => {
     })()
   );
 });
+
+// Clones a cached template response and replaces every occurrence of the
+// placeholder case id with the real one being requested, so a case that
+// was only ever created offline still gets a working shell instead of
+// offline.html. Returns null if no template has been cached yet (e.g.
+// the service worker was installed while offline).
+async function buildFromTemplate(shellCache, templatePath, realId) {
+  const template = await shellCache.match(templatePath);
+  if (!template) return null;
+  const text = await template.text();
+  const swapped = text.split(CASE_TEMPLATE_ID).join(realId);
+  return new Response(swapped, {
+    status: template.status,
+    statusText: template.statusText,
+    headers: template.headers,
+  });
+}
 
 self.addEventListener("activate", (event) => {
   // "lexcase-documents-v1" is deliberately NOT in this set — it holds
@@ -139,8 +180,9 @@ self.addEventListener("fetch", (event) => {
     // route is a client component, Next still bakes that request's resolved
     // route params into the initial HTML/flight payload it serves. Reusing
     // one entry for every case id would replay a stale case's data under a
-    // different case's URL. Each case's shell is only available offline
-    // once that specific case has actually been opened while online.
+    // different case's URL. A case whose shell was never fetched over the
+    // network (created while offline) instead falls back to the
+    // placeholder-id template below, with its real id swapped in.
     if (isOfflineShellRoute(url.pathname)) {
       const cacheKey = url.pathname;
       event.respondWith(
@@ -152,7 +194,31 @@ self.addEventListener("fetch", (event) => {
             return response;
           } catch {
             const cached = await cache.match(cacheKey);
-            return cached || caches.match("/offline.html");
+            if (cached) return cached;
+
+            // No exact-URL cache entry — this case (or its edit page) was
+            // never opened while online. If it's the detail/edit route for
+            // some case id, stamp that id into the cached template shell
+            // instead of giving up, so a case created offline opens
+            // directly rather than bouncing through offline.html.
+            const caseDetail = /^\/cases\/([^/]+)$/.exec(url.pathname);
+            if (caseDetail && caseDetail[1] !== "new") {
+              const built = await buildFromTemplate(cache, CASE_DETAIL_TEMPLATE_PATH, caseDetail[1]);
+              if (built) {
+                cache.put(cacheKey, built.clone());
+                return built;
+              }
+            }
+            const caseEdit = /^\/cases\/([^/]+)\/edit$/.exec(url.pathname);
+            if (caseEdit) {
+              const built = await buildFromTemplate(cache, CASE_EDIT_TEMPLATE_PATH, caseEdit[1]);
+              if (built) {
+                cache.put(cacheKey, built.clone());
+                return built;
+              }
+            }
+
+            return caches.match("/offline.html");
           }
         })()
       );
