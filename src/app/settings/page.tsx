@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/Avatar";
 import { PageHeader } from "@/components/PageHeader";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 
@@ -31,6 +32,8 @@ export default async function SettingsPage() {
           </button>
         </form>
       </div>
+
+      <NotificationSettings />
 
       <div className="card mt-4 p-5">
         <h2 className="mb-1 text-sm font-semibold text-ink">About the data in this app</h2>

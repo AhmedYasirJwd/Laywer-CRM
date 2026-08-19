@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/auth/callback"];
+// "/api/cron" is Vercel Cron hitting the notifications job on a schedule —
+// there's no signed-in user for it to redirect to /login as, and the route
+// itself checks CRON_SECRET (see src/app/api/cron/notifications/route.ts).
+const PUBLIC_PATHS = ["/login", "/signup", "/auth/callback", "/api/cron"];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
