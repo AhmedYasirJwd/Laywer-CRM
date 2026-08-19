@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "./OfflineBanner";
 import { NotificationPrompt } from "./NotificationPrompt";
+import { LocalReminderChecker } from "./LocalReminderChecker";
 
 const BARE_PREFIXES = ["/login", "/signup", "/auth"];
 
@@ -26,6 +27,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </div>
       <BottomNav />
       <NotificationPrompt />
+      <LocalReminderChecker />
     </div>
   );
 }
