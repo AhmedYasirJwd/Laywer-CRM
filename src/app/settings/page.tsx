@@ -1,6 +1,7 @@
 import { Avatar } from "@/components/Avatar";
 import { PageHeader } from "@/components/PageHeader";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 
@@ -32,6 +33,8 @@ export default async function SettingsPage() {
           </button>
         </form>
       </div>
+
+      <ThemeToggle />
 
       <NotificationSettings />
 

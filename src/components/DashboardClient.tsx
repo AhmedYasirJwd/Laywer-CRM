@@ -10,9 +10,12 @@ import { DashboardTasksList } from "@/components/DashboardTasksList";
 import { CaseTable } from "@/components/CaseTable";
 import { DashboardBackdrop } from "@/components/DashboardBackdrop";
 import { useOfflineCollection } from "@/hooks/useOfflineData";
+import { useTheme } from "@/lib/theme-context";
 import type { LegalCase, Hearing, Task } from "@/lib/types";
 
 export function DashboardClient() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { data: cases, isOffline: casesOffline } = useOfflineCollection<LegalCase>("cases", "/api/cases");
   const { data: hearings } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
   const { data: tasks } = useOfflineCollection<Task>("tasks", "/api/tasks");
@@ -57,8 +60,14 @@ export function DashboardClient() {
 
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="break-words text-xl font-bold text-white sm:text-2xl">Good morning, Adv. Ahmed 👋</h1>
-          <p className="mt-0.5 text-sm text-sidebar-text">Here&apos;s what&apos;s happening today.</p>
+          <h1
+            className={`break-words text-xl font-bold sm:text-2xl ${isDark ? "text-white" : "text-ink"}`}
+          >
+            Good morning, Adv. Ahmed 👋
+          </h1>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-sidebar-text" : "text-muted"}`}>
+            Here&apos;s what&apos;s happening today.
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {/* Plain <a>, not next/link — this route needs to work offline; see CaseListItem.tsx */}
@@ -73,10 +82,16 @@ export function DashboardClient() {
           <button
             type="button"
             aria-label="Notifications"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
+              isDark ? "text-white/70 hover:bg-white/10 hover:text-white" : "text-muted hover:bg-surface"
+            }`}
           >
             <Bell size={20} />
-            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand-300 ring-2 ring-home-to" />
+            <span
+              className={`absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full ${
+                isDark ? "bg-brand-300 ring-2 ring-home-to" : "bg-brand-600"
+              }`}
+            />
           </button>
           <Link href="/settings">
             <Avatar name="Adv. Ahmed" size="sm" />
