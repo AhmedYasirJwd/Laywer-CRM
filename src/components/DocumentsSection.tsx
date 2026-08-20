@@ -7,6 +7,7 @@ import { formatDateTime, formatFileSize } from "@/lib/format";
 import { compressImageIfNeeded } from "@/lib/compress-image";
 import { isDocumentSavedOffline, saveDocumentOffline, removeDocumentOffline } from "@/lib/document-offline-cache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { DocumentViewer } from "./DocumentViewer";
 
 export function DocumentsSection({ caseId, initialDocuments }: { caseId: string; initialDocuments: CaseDocument[] }) {
   const [documents, setDocuments] = useState(initialDocuments);
@@ -16,6 +17,7 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedOffline, setSavedOffline] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<CaseDocument | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const online = useOnlineStatus();
 
@@ -128,12 +130,16 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
                 className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-3"
               >
                 <FileText size={18} className="shrink-0 text-faint" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink">{doc.name}</p>
+                <button
+                  type="button"
+                  onClick={() => setViewingDoc(doc)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <p className="truncate text-sm font-medium text-ink hover:text-brand-700">{doc.name}</p>
                   <p className="text-xs text-muted">
                     {formatFileSize(doc.size)} · {formatDateTime(doc.uploadedAt)}
                   </p>
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={() => toggleOffline(doc.id)}
@@ -181,6 +187,8 @@ export function DocumentsSection({ caseId, initialDocuments }: { caseId: string;
           })}
         </ul>
       )}
+
+      {viewingDoc && <DocumentViewer document={viewingDoc} onClose={() => setViewingDoc(null)} />}
     </div>
   );
 }
