@@ -11,13 +11,20 @@ const BARE_PREFIXES = ["/login", "/signup", "/auth"];
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const bare = BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  // Only the dashboard gets the dark navy treatment — every other screen keeps
+  // the regular light background.
+  const isHome = pathname === "/";
 
   if (bare) return <>{children}</>;
 
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      <div
+        className={`flex min-h-screen min-w-0 flex-1 flex-col ${
+          isHome ? "bg-gradient-to-b from-home-from to-home-to" : ""
+        }`}
+      >
         <OfflineBanner />
         <main className="min-w-0 flex-1 overflow-x-hidden pb-28 lg:pb-8">
           <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{children}</div>
