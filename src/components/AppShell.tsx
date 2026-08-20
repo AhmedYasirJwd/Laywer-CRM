@@ -15,6 +15,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const bare = BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  // Only the dashboard gets the dark navy treatment — every other screen keeps
+  // the regular light background.
+  const isHome = pathname === "/";
 
   // Only the dashboard gets the dark navy treatment, and only when the user's
   // chosen theme (Settings → Appearance) is "dark". Every other screen keeps
@@ -29,7 +32,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <Sidebar />
       <div
         className={`flex min-h-screen min-w-0 flex-1 flex-col ${
+<<<<<<< HEAD
           isDarkHome ? "bg-gradient-to-b from-home-from to-home-to" : ""
+=======
+          isHome ? "bg-gradient-to-b from-home-from to-home-to" : ""
+>>>>>>> origin/feature/claude-ahmeed
         }`}
       >
         <OfflineBanner />

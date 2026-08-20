@@ -10,12 +10,20 @@ import { DashboardTasksList } from "@/components/DashboardTasksList";
 import { CaseTable } from "@/components/CaseTable";
 import { DashboardBackdrop } from "@/components/DashboardBackdrop";
 import { useOfflineCollection } from "@/hooks/useOfflineData";
+<<<<<<< HEAD
 import { useTheme } from "@/lib/theme-context";
 import type { LegalCase, Hearing, Task } from "@/lib/types";
 
 export function DashboardClient() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+=======
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import type { LegalCase, Hearing, Task } from "@/lib/types";
+
+export function DashboardClient() {
+  const { name } = useCurrentUser();
+>>>>>>> origin/feature/claude-ahmeed
   const { data: cases, isOffline: casesOffline } = useOfflineCollection<LegalCase>("cases", "/api/cases");
   const { data: hearings } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
   const { data: tasks } = useOfflineCollection<Task>("tasks", "/api/tasks");
@@ -60,6 +68,7 @@ export function DashboardClient() {
 
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
+<<<<<<< HEAD
           <h1
             className={`break-words text-xl font-bold sm:text-2xl ${isDark ? "text-white" : "text-ink"}`}
           >
@@ -68,6 +77,10 @@ export function DashboardClient() {
           <p className={`mt-0.5 text-sm ${isDark ? "text-sidebar-text" : "text-muted"}`}>
             Here&apos;s what&apos;s happening today.
           </p>
+=======
+          <h1 className="break-words text-xl font-bold text-white sm:text-2xl">Good morning, {name} 👋</h1>
+          <p className="mt-0.5 text-sm text-sidebar-text">Here&apos;s what&apos;s happening today.</p>
+>>>>>>> origin/feature/claude-ahmeed
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {/* Plain <a>, not next/link — this route needs to work offline; see CaseListItem.tsx */}
@@ -82,6 +95,7 @@ export function DashboardClient() {
           <button
             type="button"
             aria-label="Notifications"
+<<<<<<< HEAD
             className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
               isDark ? "text-white/70 hover:bg-white/10 hover:text-white" : "text-muted hover:bg-surface"
             }`}
@@ -92,9 +106,15 @@ export function DashboardClient() {
                 isDark ? "bg-brand-300 ring-2 ring-home-to" : "bg-brand-600"
               }`}
             />
+=======
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+          >
+            <Bell size={20} />
+            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand-300 ring-2 ring-home-to" />
+>>>>>>> origin/feature/claude-ahmeed
           </button>
           <Link href="/settings">
-            <Avatar name="Adv. Ahmed" size="sm" />
+            <Avatar name={name} size="sm" />
           </Link>
         </div>
       </div>
