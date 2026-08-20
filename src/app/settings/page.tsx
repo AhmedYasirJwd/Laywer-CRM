@@ -1,6 +1,7 @@
 import { Avatar } from "@/components/Avatar";
 import { PageHeader } from "@/components/PageHeader";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 
@@ -10,6 +11,8 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const email = user?.email ?? "";
+  const fullName = (user?.user_metadata?.full_name as string | undefined)?.trim();
+  const displayName = fullName || email || "?";
 
   return (
     <div>
@@ -17,10 +20,10 @@ export default async function SettingsPage() {
 
       <div className="card flex items-center justify-between gap-4 p-5">
         <div className="flex items-center gap-4">
-          <Avatar name={email || "?"} size="lg" />
+          <Avatar name={displayName} size="lg" />
           <div>
-            <p className="text-base font-semibold text-ink">{email}</p>
-            <p className="text-sm text-muted">Signed in</p>
+            <p className="text-base font-semibold text-ink">{fullName || email}</p>
+            <p className="text-sm text-muted">{fullName ? email : "Signed in"}</p>
           </div>
         </div>
         <form action={signOut}>
@@ -32,6 +35,8 @@ export default async function SettingsPage() {
           </button>
         </form>
       </div>
+
+      <ThemeToggle />
 
       <NotificationSettings />
 

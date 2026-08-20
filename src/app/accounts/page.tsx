@@ -22,6 +22,7 @@ export const dynamic = "force-dynamic";
 interface UserStats {
   id: string;
   fullName: string;
+  phone: string;
   email: string;
   createdAt: string;
   lastSignInAt: string | null;
@@ -74,9 +75,12 @@ async function loadStats(): Promise<UserStats[]> {
     .map((u): UserStats => {
       const fullNameRaw = u.user_metadata?.full_name;
       const fullName = typeof fullNameRaw === "string" && fullNameRaw.trim() ? fullNameRaw.trim() : "";
+      const phoneRaw = u.user_metadata?.phone;
+      const phone = typeof phoneRaw === "string" && phoneRaw.trim() ? phoneRaw.trim() : "";
       return {
         id: u.id,
         fullName,
+        phone,
         email: u.email ?? "(no email)",
         createdAt: u.created_at,
         lastSignInAt: u.last_sign_in_at ?? null,
@@ -155,10 +159,11 @@ export default async function OpsStatsPage() {
       <p className="mt-2 text-xs text-muted">Total document storage: {formatFileSize(totals.documentsSize)}</p>
 
       <div className="card mt-6 overflow-x-auto p-0">
-        <table className="w-full min-w-[900px] text-left text-sm">
+        <table className="w-full min-w-[1000px] text-left text-sm">
           <thead>
             <tr className="border-b border-line text-xs font-semibold uppercase tracking-wide text-muted">
               <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Signed up</th>
               <th className="px-4 py-3">Last sign-in</th>
@@ -174,6 +179,7 @@ export default async function OpsStatsPage() {
             {stats.map((u) => (
               <tr key={u.id} className="border-b border-line last:border-0">
                 <td className="px-4 py-3 font-medium text-ink">{u.fullName || "—"}</td>
+                <td className="px-4 py-3 text-muted">{u.phone || "—"}</td>
                 <td className="px-4 py-3 text-muted">{u.email}</td>
                 <td className="px-4 py-3 text-muted">{formatDateTime(u.createdAt)}</td>
                 <td className="px-4 py-3 text-muted">

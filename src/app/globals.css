@@ -42,6 +42,10 @@
   --sidebar-active: #1e40af;
   --sidebar-active-icon: #7fa8ff;
   --sidebar-line: rgba(255, 255, 255, 0.12);
+
+  /* Dashboard-only dark mode background — see theme-context.tsx. Nothing
+     else in the app reads this; every other page stays on --background. */
+  --dashboard-dark-bg: #131214;
 }
 
 @theme inline {
