@@ -1,21 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2, WifiOff } from "lucide-react";
+import Link from "next/link";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { LegalCase, Task } from "@/lib/types";
 import { PageHeader } from "./PageHeader";
 import { PriorityBadge } from "./Badge";
 import { formatDate, relativeDayLabel } from "@/lib/format";
 import { useOfflineCollection } from "@/hooks/useOfflineData";
-import { saveTask } from "@/lib/task-sync";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const TABS = ["Pending", "Completed", "All"] as const;
 
 export function TasksExplorer() {
   const { data: tasks, setData: setTasks, isOffline } = useOfflineCollection<Task>("tasks", "/api/tasks");
   const { data: cases } = useOfflineCollection<LegalCase>("cases", "/api/cases");
-  const isOnline = useOnlineStatus();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Pending");
   const casesById = useMemo(() => new Map(cases.map((c) => [c.id, c])), [cases]);
 
@@ -25,19 +23,22 @@ export function TasksExplorer() {
 
   const neverSynced = isOffline && tasks.length === 0;
 
-  // Toggling completion is just an "edit", so it goes through the same
-  // offline-aware save path as the task form — works with no connection.
-  // Deleting is still online-only (there's no offline-delete story for any
-  // entity in this app yet, cases included).
+  // Toggling/deleting a task writes to the server — both are disabled while
+  // offline rather than silently queuing the change, since this pass only
+  // covers offline *reading*, not a write-sync engine.
   async function toggleTask(task: Task) {
+    if (isOffline) return;
     const nextStatus = task.status === "Completed" ? "Pending" : "Completed";
-    const updated: Task = { ...task, status: nextStatus };
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
-    await saveTask(updated, "update", { status: nextStatus });
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: nextStatus } : t)));
+    await fetch(`/api/tasks/${task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: nextStatus }),
+    });
   }
 
   async function removeTask(task: Task) {
-    if (!isOnline) return;
+    if (isOffline) return;
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
     await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
   }
@@ -48,17 +49,13 @@ export function TasksExplorer() {
         title="Tasks"
         subtitle={`${tasks.filter((t) => t.status === "Pending").length} pending tasks`}
         action={
-          // Plain <a>, not next/link — /tasks/new is offline-enabled and
-          // needs a real navigation for the service worker to serve it
-          // with no network.
-          // eslint-disable-next-line @next/next/no-html-link-for-pages
-          <a
+          <Link
             href="/tasks/new"
             className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700"
           >
             <Plus size={16} />
             <span className="hidden sm:inline">Add Task</span>
-          </a>
+          </Link>
         }
       />
 
@@ -97,8 +94,10 @@ export function TasksExplorer() {
                   <button
                     type="button"
                     onClick={() => toggleTask(task)}
+                    disabled={isOffline}
                     aria-label={done ? "Mark as pending" : "Mark as completed"}
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                    title={isOffline ? "Requires an internet connection" : undefined}
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                       done ? "border-brand-600 bg-brand-600" : "border-line"
                     }`}
                   >
@@ -114,24 +113,27 @@ export function TasksExplorer() {
                     </p>
                   </div>
                   {task.priority && !done && <PriorityBadge priority={task.priority} />}
-                  {/* Plain <a>, not next/link — same reasoning as "Add Task" above. */}
-                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                  <a
-                    href={`/tasks/${task.id}/edit`}
+                  <Link
+                    href={isOffline ? "#" : `/tasks/${task.id}/edit`}
                     aria-label="Edit task"
-                    className="shrink-0 text-faint hover:text-ink"
+                    aria-disabled={isOffline}
+                    title={isOffline ? "Requires an internet connection" : undefined}
+                    onClick={(e) => isOffline && e.preventDefault()}
+                    className={`shrink-0 text-faint hover:text-ink ${
+                      isOffline ? "cursor-not-allowed opacity-40" : ""
+                    }`}
                   >
                     <Pencil size={15} />
-                  </a>
+                  </Link>
                   <button
                     type="button"
                     onClick={() => removeTask(task)}
-                    disabled={!isOnline}
+                    disabled={isOffline}
                     aria-label="Delete task"
-                    title={!isOnline ? "Requires an internet connection" : undefined}
+                    title={isOffline ? "Requires an internet connection" : undefined}
                     className="shrink-0 text-faint hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    {isOnline ? <Trash2 size={16} /> : <WifiOff size={15} />}
+                    <Trash2 size={16} />
                   </button>
                 </div>
               );

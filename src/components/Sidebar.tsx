@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Scale, Plus, Settings } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { Avatar } from "./Avatar";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -13,6 +14,7 @@ function isActive(pathname: string, href: string) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { name } = useCurrentUser();
 
   return (
     <aside className="relative isolate hidden w-64 shrink-0 flex-col overflow-hidden bg-gradient-to-br from-sidebar-from to-sidebar-to lg:flex">
@@ -38,18 +40,14 @@ export function Sidebar() {
       </div>
 
       <div className="px-4">
-        {/* Plain <a>, not next/link — same reasoning as the nav items below:
-            /cases/new is offline-enabled and needs a real navigation for
-            the service worker to serve it with no network. */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a
+        <Link
           href="/cases/new"
           className="relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-black/30 transition-all duration-150 hover:bg-brand-700 active:scale-95"
         >
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent" />
           <Plus size={16} />
           New Case
-        </a>
+        </Link>
       </div>
 
       <nav className="mt-6 flex-1 space-y-1 px-3">
@@ -98,9 +96,9 @@ export function Sidebar() {
 
       <div className="border-t border-sidebar-line px-4 py-4">
         <Link href="/settings" className="flex items-center gap-3">
-          <Avatar name="Adv. Ahmed" size="sm" />
+          <Avatar name={name} size="sm" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">Adv. Ahmed</p>
+            <p className="truncate text-sm font-semibold text-white">{name}</p>
             <p className="text-xs text-sidebar-text">View Profile</p>
           </div>
         </Link>

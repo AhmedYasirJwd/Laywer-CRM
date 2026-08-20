@@ -125,7 +125,7 @@ const inputClass =
 const inputErrorClass =
   "w-full rounded-xl border border-red-400 bg-red-50/40 px-3.5 py-2.5 text-sm text-ink placeholder:text-faint focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500";
 
-function emptyParty(role: string = "Other"): PartyDraft {
+function emptyParty(role: string = ""): PartyDraft {
   return { key: crypto.randomUUID(), name: "", role, phone: "", email: "" };
 }
 
@@ -185,8 +185,8 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     title: initial?.title ?? "",
     court: initial?.court ?? "",
     filingDate: initial?.filingDate ?? new Date().toISOString().slice(0, 10),
-    caseType: initial?.caseType ?? CASE_TYPES[0],
-    counselFor: initial?.counselFor ?? CASE_ROLES[0],
+    caseType: initial?.caseType ?? "",
+    counselFor: initial?.counselFor ?? "",
     stage: initial?.stage ?? STAGES[0],
     status: initial?.status ?? "Active",
     priority: initial?.priority ?? "Medium",
@@ -201,7 +201,7 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
           phone: p.phone ?? "",
           email: p.email ?? "",
         }))
-      : [emptyParty("Plaintiff"), emptyParty("Defendant")]
+      : [emptyParty(), emptyParty()]
   );
   const [partyTouched, setPartyTouched] = useState<Record<string, { phone?: boolean; email?: boolean }>>({});
 

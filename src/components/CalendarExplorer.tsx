@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   addMonths,
@@ -120,17 +121,13 @@ export function CalendarExplorer() {
         title="Calendar"
         subtitle={`${hearings.length} scheduled hearings`}
         action={
-          // Plain <a>, not next/link — /calendar/new is offline-enabled
-          // and needs a real navigation for the service worker to serve
-          // it with no network.
-          // eslint-disable-next-line @next/next/no-html-link-for-pages
-          <a
+          <Link
             href="/calendar/new"
             className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700"
           >
             <Plus size={16} />
             <span className="hidden sm:inline">Add Hearing</span>
-          </a>
+          </Link>
         }
       />
 

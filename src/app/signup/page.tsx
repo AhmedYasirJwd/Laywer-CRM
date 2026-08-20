@@ -29,6 +29,17 @@ export default function SignupPage() {
           )}
 
           <label className="block">
+            <span className="mb-1.5 block text-xs font-medium text-muted">Full Name</span>
+            <input
+              required
+              type="text"
+              name="name"
+              autoComplete="name"
+              placeholder="Adv. Ahmed Khan"
+              className={inputClass}
+            />
+          </label>
+          <label className="block">
             <span className="mb-1.5 block text-xs font-medium text-muted">Email</span>
             <input required type="email" name="email" autoComplete="email" className={inputClass} />
           </label>

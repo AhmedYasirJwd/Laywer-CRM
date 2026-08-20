@@ -279,6 +279,13 @@ export async function getHearingsForCase(caseId: string): Promise<Hearing[]> {
   return (data ?? []).map(mapHearing);
 }
 
+export async function getHearingById(id: string): Promise<Hearing | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("hearings").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? mapHearing(data) : undefined;
+}
+
 export async function createHearing(data: Omit<Hearing, "id">): Promise<Hearing> {
   const supabase = await createSupabaseServerClient();
   const userId = await requireUserId();
@@ -324,8 +331,8 @@ export async function updateHearing(id: string, patch: Partial<Hearing>): Promis
   if (!data) return undefined;
 
   const updated = mapHearing(data);
-  // Keep the case's "last updated" stamp honest — same as createHearing
-  // does on insert.
+  // Keep the case's "last updated" stamp (and anything reading the
+  // combined timeline) honest — same as createHearing does on insert.
   await supabase.from("cases").update({ last_updated: new Date().toISOString() }).eq("id", updated.caseId);
   return updated;
 }
@@ -354,6 +361,13 @@ export async function getTasksForCase(caseId: string): Promise<Task[]> {
     .order("due_date", { ascending: true });
   if (error) throw error;
   return (data ?? []).map(mapTask);
+}
+
+export async function getTaskById(id: string): Promise<Task | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("tasks").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? mapTask(data) : undefined;
 }
 
 export async function createTask(data: Omit<Task, "id" | "status"> & { status?: Task["status"] }): Promise<Task> {
