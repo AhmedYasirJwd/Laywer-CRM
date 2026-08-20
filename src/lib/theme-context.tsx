@@ -12,7 +12,7 @@ const ThemeContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => v
 // image between the light and dark variant. Persisted to localStorage (not
 // Supabase) since it's a per-device display preference, not case data.
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
