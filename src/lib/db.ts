@@ -279,6 +279,13 @@ export async function getHearingsForCase(caseId: string): Promise<Hearing[]> {
   return (data ?? []).map(mapHearing);
 }
 
+export async function getHearingById(id: string): Promise<Hearing | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("hearings").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? mapHearing(data) : undefined;
+}
+
 export async function createHearing(data: Omit<Hearing, "id">): Promise<Hearing> {
   const supabase = await createSupabaseServerClient();
   const userId = await requireUserId();
@@ -310,6 +317,26 @@ export async function createHearing(data: Omit<Hearing, "id">): Promise<Hearing>
   return mapHearing(inserted);
 }
 
+export async function updateHearing(id: string, patch: Partial<Hearing>): Promise<Hearing | undefined> {
+  const supabase = await createSupabaseServerClient();
+
+  const columnPatch: Record<string, unknown> = {};
+  if (patch.date !== undefined) columnPatch.date = patch.date;
+  if (patch.purpose !== undefined) columnPatch.purpose = patch.purpose;
+  if (patch.court !== undefined) columnPatch.court = patch.court;
+  if (patch.counselFor !== undefined) columnPatch.counsel_for = patch.counselFor;
+
+  const { data, error } = await supabase.from("hearings").update(columnPatch).eq("id", id).select().maybeSingle();
+  if (error) throw error;
+  if (!data) return undefined;
+
+  const updated = mapHearing(data);
+  // Keep the case's "last updated" stamp (and anything reading the
+  // combined timeline) honest — same as createHearing does on insert.
+  await supabase.from("cases").update({ last_updated: new Date().toISOString() }).eq("id", updated.caseId);
+  return updated;
+}
+
 export async function deleteHearing(id: string): Promise<boolean> {
   const supabase = await createSupabaseServerClient();
   const { error, count } = await supabase.from("hearings").delete({ count: "exact" }).eq("id", id);
@@ -334,6 +361,13 @@ export async function getTasksForCase(caseId: string): Promise<Task[]> {
     .order("due_date", { ascending: true });
   if (error) throw error;
   return (data ?? []).map(mapTask);
+}
+
+export async function getTaskById(id: string): Promise<Task | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from("tasks").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? mapTask(data) : undefined;
 }
 
 export async function createTask(data: Omit<Task, "id" | "status"> & { status?: Task["status"] }): Promise<Task> {

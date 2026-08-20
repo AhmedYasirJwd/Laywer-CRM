@@ -10,6 +10,9 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const email = user?.email ?? "";
+  const fullNameRaw = user?.user_metadata?.full_name;
+  const fullName = typeof fullNameRaw === "string" && fullNameRaw.trim() ? fullNameRaw.trim() : "";
+  const displayName = fullName || email.split("@")[0] || "";
 
   return (
     <div>
@@ -17,9 +20,10 @@ export default async function SettingsPage() {
 
       <div className="card flex items-center justify-between gap-4 p-5">
         <div className="flex items-center gap-4">
-          <Avatar name={email || "?"} size="lg" />
+          <Avatar name={displayName || "?"} size="lg" />
           <div>
-            <p className="text-base font-semibold text-ink">{email}</p>
+            <p className="text-base font-semibold text-ink">{fullName || email}</p>
+            {fullName && <p className="text-sm text-muted">{email}</p>}
             <p className="text-sm text-muted">Signed in</p>
           </div>
         </div>
