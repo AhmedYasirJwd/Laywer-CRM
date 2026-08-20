@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { PriorityBadge } from "./Badge";
 import { formatDate, relativeDayLabel } from "@/lib/format";
@@ -77,6 +77,13 @@ export function CaseTasksSection({ caseId, initialTasks }: { caseId: string; ini
                     )}
                   </div>
                   {task.priority && !done && <PriorityBadge priority={task.priority} />}
+                  <Link
+                    href={`/tasks/${task.id}/edit`}
+                    aria-label="Edit task"
+                    className="shrink-0 text-faint hover:text-ink"
+                  >
+                    <Pencil size={15} />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => removeTask(task)}

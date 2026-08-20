@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { LegalCase, Task } from "@/lib/types";
 import { PageHeader } from "./PageHeader";
 import { PriorityBadge } from "./Badge";
@@ -113,6 +113,18 @@ export function TasksExplorer() {
                     </p>
                   </div>
                   {task.priority && !done && <PriorityBadge priority={task.priority} />}
+                  <Link
+                    href={isOffline ? "#" : `/tasks/${task.id}/edit`}
+                    aria-label="Edit task"
+                    aria-disabled={isOffline}
+                    title={isOffline ? "Requires an internet connection" : undefined}
+                    onClick={(e) => isOffline && e.preventDefault()}
+                    className={`shrink-0 text-faint hover:text-ink ${
+                      isOffline ? "cursor-not-allowed opacity-40" : ""
+                    }`}
+                  >
+                    <Pencil size={15} />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => removeTask(task)}
