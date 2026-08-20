@@ -57,7 +57,14 @@ export function DashboardClient() {
   const neverSynced = casesOffline && cases.length === 0 && hearings.length === 0 && tasks.length === 0;
 
   return (
-    <div className="relative isolate">
+    <div
+      className={`relative isolate ${
+        isDark
+          ? "-mx-4 -my-5 px-4 py-5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8"
+          : ""
+      }`}
+      style={isDark ? { backgroundColor: "#131214" } : undefined}
+    >
       <DashboardBackdrop />
 
       <div className="mb-5 flex items-center justify-between gap-3">
