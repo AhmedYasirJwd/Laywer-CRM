@@ -227,10 +227,19 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
     return (partyTouched[key]?.[field] || attemptedSubmit) ? partyErrors[key]?.[field] : undefined;
   }
 
-  // The case title auto-fills as "{Party 1} vs {Party 2}" while the user hasn't
-  // typed a custom title themselves. Editing an existing case's title counts as
-  // a deliberate choice, so we don't silently overwrite it there.
-  const [titleTouched, setTitleTouched] = useState(() => Boolean(initial?.title));
+  // The case title auto-fills as "{Party 1} vs {Party 2}" while the title is
+  // still following that pattern. On create that's always true at first. On
+  // edit, we only keep auto-syncing if the saved title still matches what the
+  // saved parties would produce — i.e. nobody has deliberately customized it
+  // away from the default. A hand-written title (e.g. "Estate of X v. Bank")
+  // is left alone so editing a party's phone number doesn't clobber it.
+  const [titleTouched, setTitleTouched] = useState(() => {
+    if (!initial) return false;
+    const p1 = initial.parties[0]?.name.trim();
+    const p2 = initial.parties[1]?.name.trim();
+    const computed = p1 && p2 ? `${p1} vs ${p2}` : p1 || p2 || "";
+    return initial.title !== computed;
+  });
 
   useEffect(() => {
     if (titleTouched) return;
@@ -444,15 +453,12 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
             />
           </Field>
           <Field label="Counsel For">
-            <select
-              className={inputClass}
+            <Autocomplete
+              placeholder="Start typing to search roles..."
               value={form.counselFor}
-              onChange={(e) => set("counselFor", e.target.value)}
-            >
-              {counselForOptions.map((r) => (
-                <option key={r}>{r}</option>
-              ))}
-            </select>
+              onChange={(v) => set("counselFor", v)}
+              options={counselForOptions}
+            />
           </Field>
           <Field label="Filing Date" name="filingDate" error={shown("filingDate")}>
             <input
@@ -543,18 +549,12 @@ export function CaseForm({ initial }: { initial?: LegalCase }) {
                     />
                   </Field>
                   <Field label="Role">
-                    <select
-                      className={inputClass}
+                    <Autocomplete
+                      placeholder="Start typing to search roles..."
                       value={p.role}
-                      onChange={(e) => updateParty(p.key, "role", e.target.value)}
-                    >
-                      {(rolesForPartyIndex(i).includes(p.role)
-                        ? rolesForPartyIndex(i)
-                        : [p.role, ...rolesForPartyIndex(i)]
-                      ).map((r) => (
-                        <option key={r}>{r}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateParty(p.key, "role", v)}
+                      options={rolesForPartyIndex(i)}
+                    />
                   </Field>
                   <Field label="Phone" error={partyShown(p.key, "phone")}>
                     <input
