@@ -35,13 +35,22 @@
   --success-600: #16a34a;
   --success-700: #15803d;
 
-  /* Sidebar + mobile nav — deep navy-to-charcoal gradient with a "liquid glass" treatment */
-  --sidebar-from: #0f2358;
-  --sidebar-to: #131214;
+  /* Sidebar + mobile nav — deep navy-to-charcoal gradient with a "liquid glass" treatment.
+     Kept a shade darker than --home-from/--home-to below on purpose: the nav needs to
+     read as a distinct, denser slab of glass floating on top of the (lighter) dark
+     dashboard backdrop, not blend flat into it. */
+  --sidebar-from: #0a1a45;
+  --sidebar-to: #0c0b0d;
   --sidebar-text: #9aa3c7;
   --sidebar-active: #1e40af;
   --sidebar-active-icon: #7fa8ff;
   --sidebar-line: rgba(255, 255, 255, 0.12);
+
+  /* Home/dashboard screen background — the original (lighter) nav navy, one step
+     brighter than --sidebar-from/--sidebar-to so the floating nav bar visibly sits
+     above it instead of disappearing into a flat, same-toned dark page. */
+  --home-from: #0f2358;
+  --home-to: #131214;
 }
 
 @theme inline {
@@ -83,6 +92,9 @@
   --color-sidebar-active: var(--sidebar-active);
   --color-sidebar-active-icon: var(--sidebar-active-icon);
   --color-sidebar-line: var(--sidebar-line);
+
+  --color-home-from: var(--home-from);
+  --color-home-to: var(--home-to);
 
   --font-sans: var(--font-inter);
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
