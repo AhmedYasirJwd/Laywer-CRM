@@ -15,6 +15,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const bare = BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
   // Only the dashboard gets the dark navy treatment, and only when the user's
   // chosen theme (Settings → Appearance) is "dark". Every other screen keeps
   // the regular light background regardless of the setting.
@@ -32,13 +33,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }`}
       >
         <OfflineBanner />
+        <NotificationPrompt />
+        <LocalReminderChecker />
+
         <main className="min-w-0 flex-1 overflow-x-hidden pb-28 lg:pb-8">
-          <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{children}</div>
+          <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+            {children}
+          </div>
         </main>
       </div>
       <BottomNav />
-      <NotificationPrompt />
-      <LocalReminderChecker />
     </div>
   );
 }
