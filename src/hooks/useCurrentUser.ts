@@ -1,63 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export interface CurrentUser {
-  name: string;
-  email: string;
+function deriveName(user: User | null | undefined): string {
+  if (!user) return "";
+  const fullName = user.user_metadata?.full_name;
+  if (typeof fullName === "string" && fullName.trim()) return fullName.trim();
+  // Accounts created before the "full name" signup field existed won't have
+  // full_name set — fall back to the part of the email before the @ rather
+  // than showing nothing.
+  return user.email?.split("@")[0] ?? "";
 }
 
-const FALLBACK: CurrentUser = { name: "there", email: "" };
-const CACHE_KEY = "lexcase-current-user";
-
-function readCache(): CurrentUser {
-  if (typeof window === "undefined") return FALLBACK;
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : FALLBACK;
-  } catch {
-    return FALLBACK;
-  }
-}
-
-function writeCache(user: CurrentUser) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(user));
-  } catch {
-    // Non-fatal — the name just won't be cached for the next offline launch.
-  }
-}
-
-/** The signed-in user's display name (from the "Full Name" they gave at
- *  sign-up) and email. Reads a cached copy synchronously first — so there's
- *  no flash of a placeholder, and it still works offline — then refreshes
- *  from the local Supabase session (getSession() reads local storage, not
- *  the network, so this works offline too). */
-export function useCurrentUser(): CurrentUser {
-  const [user, setUser] = useState<CurrentUser>(readCache);
+// getSession() (unlike getUser()) reads the session already cached on-device
+// rather than round-tripping to Supabase, so this resolves instantly even
+// offline — consistent with the rest of the app's offline-first dashboard
+// (see DashboardClient's comment on why it avoids server data fetching).
+export function useCurrentUser(): { name: string; email: string } {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data } = await supabase.auth.getSession();
-        const authUser = data.session?.user;
-        if (!authUser || cancelled) return;
-        const rawName = (authUser.user_metadata?.full_name as string | undefined)?.trim();
-        const name = rawName || authUser.email?.split("@")[0] || "there";
-        const next: CurrentUser = { name, email: authUser.email ?? "" };
-        setUser(next);
-        writeCache(next);
-      } catch {
-        // Stay on whatever the cache (or fallback) already provided.
-      }
-    })();
+    const supabase = createSupabaseBrowserClient();
+    let active = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      setName(deriveName(data.session?.user));
+      setEmail(data.session?.user?.email ?? "");
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setName(deriveName(session?.user));
+      setEmail(session?.user?.email ?? "");
+    });
+
     return () => {
-      cancelled = true;
+      active = false;
+      listener.subscription.unsubscribe();
     };
   }, []);
 
-  return user;
+  return { name, email };
 }

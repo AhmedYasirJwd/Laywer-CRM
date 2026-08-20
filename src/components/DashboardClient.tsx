@@ -59,7 +59,9 @@ export function DashboardClient() {
 
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="break-words text-xl font-bold text-white sm:text-2xl">Good morning, {name} 👋</h1>
+          <h1 className="break-words text-xl font-bold text-white sm:text-2xl">
+            Good morning{name ? `, ${name}` : ""} 👋
+          </h1>
           <p className="mt-0.5 text-sm text-sidebar-text">Here&apos;s what&apos;s happening today.</p>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -81,7 +83,7 @@ export function DashboardClient() {
             <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand-300 ring-2 ring-home-to" />
           </button>
           <Link href="/settings">
-            <Avatar name={name} size="sm" />
+            <Avatar name={name || "?"} size="sm" />
           </Link>
         </div>
       </div>

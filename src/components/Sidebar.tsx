@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Scale, Plus, Settings } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
-import { Avatar } from "./Avatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Avatar } from "./Avatar";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -96,9 +96,9 @@ export function Sidebar() {
 
       <div className="border-t border-sidebar-line px-4 py-4">
         <Link href="/settings" className="flex items-center gap-3">
-          <Avatar name={name} size="sm" />
+          <Avatar name={name || "?"} size="sm" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">{name}</p>
+            <p className="truncate text-sm font-semibold text-white">{name || "Loading..."}</p>
             <p className="text-xs text-sidebar-text">View Profile</p>
           </div>
         </Link>
