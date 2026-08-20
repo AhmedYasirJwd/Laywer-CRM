@@ -18,10 +18,12 @@ export async function signIn(_prevState: unknown, formData: FormData) {
 }
 
 export async function signUp(_prevState: unknown, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
 
+  if (!name) return { error: "Enter your full name." };
   if (!email || !password) return { error: "Enter your email and password." };
   if (password.length < 8) return { error: "Password must be at least 8 characters." };
   if (password !== confirm) return { error: "Passwords don't match." };
@@ -30,7 +32,10 @@ export async function signUp(_prevState: unknown, formData: FormData) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback` },
+    options: {
+      data: { full_name: name },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback`,
+    },
   });
   if (error) return { error: error.message };
 
