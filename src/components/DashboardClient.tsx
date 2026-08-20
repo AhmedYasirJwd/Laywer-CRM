@@ -10,15 +10,9 @@ import { DashboardTasksList } from "@/components/DashboardTasksList";
 import { CaseTable } from "@/components/CaseTable";
 import { DashboardBackdrop } from "@/components/DashboardBackdrop";
 import { useOfflineCollection } from "@/hooks/useOfflineData";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useTheme } from "@/lib/theme-context";
 import type { LegalCase, Hearing, Task } from "@/lib/types";
 
 export function DashboardClient() {
-  const { name } = useCurrentUser();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
   const { data: cases, isOffline: casesOffline } = useOfflineCollection<LegalCase>("cases", "/api/cases");
   const { data: hearings } = useOfflineCollection<Hearing>("hearings", "/api/hearings");
   const { data: tasks } = useOfflineCollection<Task>("tasks", "/api/tasks");
@@ -31,12 +25,8 @@ export function DashboardClient() {
     .slice(0, 4);
 
   const hearingsByCaseId = new Map<string, Hearing[]>();
-
   for (const h of hearings) {
-    if (!hearingsByCaseId.has(h.caseId)) {
-      hearingsByCaseId.set(h.caseId, []);
-    }
-
+    if (!hearingsByCaseId.has(h.caseId)) hearingsByCaseId.set(h.caseId, []);
     hearingsByCaseId.get(h.caseId)!.push(h);
   }
 
@@ -45,13 +35,10 @@ export function DashboardClient() {
     .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
     .slice(0, 5);
 
-  const recentCases = [...cases]
-    .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated))
-    .slice(0, 5);
+  const recentCases = [...cases].sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated)).slice(0, 5);
 
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
   const monthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).getTime();
-
   const stats = {
     totalCases: cases.length,
     activeCases: cases.filter((c) => c.status === "Active").length,
@@ -62,11 +49,7 @@ export function DashboardClient() {
     pendingTasks: tasks.filter((t) => t.status === "Pending").length,
   };
 
-  const neverSynced =
-    casesOffline &&
-    cases.length === 0 &&
-    hearings.length === 0 &&
-    tasks.length === 0;
+  const neverSynced = casesOffline && cases.length === 0 && hearings.length === 0 && tasks.length === 0;
 
   return (
     <div className="relative isolate">
@@ -74,25 +57,11 @@ export function DashboardClient() {
 
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1
-            className={`break-words text-xl font-bold sm:text-2xl ${
-              isDark ? "text-white" : "text-ink"
-            }`}
-          >
-            Good morning, {name} 👋
-          </h1>
-
-          <p
-            className={`mt-0.5 text-sm ${
-              isDark ? "text-sidebar-text" : "text-muted"
-            }`}
-          >
-            Here&apos;s what&apos;s happening today.
-          </p>
+          <h1 className="break-words text-xl font-bold text-ink sm:text-2xl">Good morning, Adv. Ahmed 👋</h1>
+          <p className="mt-0.5 text-sm text-muted">Here&apos;s what&apos;s happening today.</p>
         </div>
-
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {/* Plain <a>, not next/link — this route needs to work offline. */}
+          {/* Plain <a>, not next/link — this route needs to work offline; see CaseListItem.tsx */}
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/cases/new"
@@ -101,29 +70,16 @@ export function DashboardClient() {
             <Plus size={16} />
             <span className="hidden sm:inline">New Case</span>
           </a>
-
           <button
             type="button"
             aria-label="Notifications"
-            className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
-              isDark
-                ? "text-white/70 hover:bg-white/10 hover:text-white"
-                : "text-muted hover:bg-surface"
-            }`}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-surface"
           >
             <Bell size={20} />
-
-            <span
-              className={`absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full ${
-                isDark
-                  ? "bg-brand-300 ring-2 ring-home-to"
-                  : "bg-brand-600"
-              }`}
-            />
+            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand-600" />
           </button>
-
           <Link href="/settings">
-            <Avatar name={name} size="sm" />
+            <Avatar name="Adv. Ahmed" size="sm" />
           </Link>
         </div>
       </div>
@@ -141,20 +97,12 @@ export function DashboardClient() {
 
       {neverSynced ? (
         <div className="rounded-2xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted">
-          This information isn&apos;t available offline yet. Connect to the
-          internet once to load your dashboard.
+          This information isn&apos;t available offline yet. Connect to the internet once to load your dashboard.
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            <StatCard
-              icon={Briefcase}
-              value={stats.totalCases}
-              label="Total Cases"
-              tone="blue"
-              href="/cases"
-            />
-
+            <StatCard icon={Briefcase} value={stats.totalCases} label="Total Cases" tone="blue" href="/cases" />
             <StatCard
               icon={FolderOpen}
               value={stats.activeCases}
@@ -162,7 +110,6 @@ export function DashboardClient() {
               tone="success"
               href="/cases?status=Active"
             />
-
             <StatCard
               icon={Calendar}
               value={stats.hearingsThisMonth}
@@ -170,14 +117,7 @@ export function DashboardClient() {
               tone="purple"
               href="/calendar"
             />
-
-            <StatCard
-              icon={ClipboardCheck}
-              value={stats.pendingTasks}
-              label="Pending Tasks"
-              tone="amber"
-              href="/tasks"
-            />
+            <StatCard icon={ClipboardCheck} value={stats.pendingTasks} label="Pending Tasks" tone="amber" href="/tasks" />
           </div>
 
           <div className="mt-4">
@@ -193,20 +133,13 @@ export function DashboardClient() {
 
           <div className="mt-4">
             <SectionCard title="Recent Cases" viewAllHref="/cases">
-              <CaseTable
-                cases={recentCases}
-                variant="compact"
-                hearingsByCaseId={hearingsByCaseId}
-              />
+              <CaseTable cases={recentCases} variant="compact" hearingsByCaseId={hearingsByCaseId} />
             </SectionCard>
           </div>
 
           <div className="mt-4">
             <SectionCard title="Important Tasks" viewAllHref="/tasks">
-              <DashboardTasksList
-                tasks={pendingTasks}
-                emptyMessage="No pending tasks. Nice work."
-              />
+              <DashboardTasksList tasks={pendingTasks} emptyMessage="No pending tasks. Nice work." />
             </SectionCard>
           </div>
         </>

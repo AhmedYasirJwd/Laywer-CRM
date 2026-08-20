@@ -16,12 +16,18 @@ const DB_VERSION = 2;
 const STORES = ["cases", "hearings", "tasks", "documents", "meta", "outbox"] as const;
 type StoreName = (typeof STORES)[number];
 
-/** A case create/edit made while offline (or while the server was
- *  unreachable), waiting to be sent once connectivity is back. */
+/** A case/hearing/task create or edit made while offline (or while the
+ *  server was unreachable), waiting to be sent once connectivity is back.
+ *  Keyed as `${entity}:${entityId}` so each entity has at most one pending
+ *  write in flight at a time, and cases/hearings/tasks can never collide
+ *  even though they share this one outbox store. */
+export type OutboxEntity = "case" | "hearing" | "task";
+
 export interface OutboxEntry {
-  id: string; // == the case's id, since a case has at most one pending write at a time
+  id: string; // `${entity}:${entityId}` — this row's own primary key
+  entity: OutboxEntity;
+  entityId: string; // the case/hearing/task id this write applies to
   op: "create" | "update";
-  caseId: string;
   payload: Record<string, unknown>;
   createdAt: number;
   attempts: number;

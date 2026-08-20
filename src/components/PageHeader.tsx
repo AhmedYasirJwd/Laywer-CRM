@@ -1,21 +1,19 @@
-"use client";
-
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { Avatar } from "./Avatar";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type { ReactNode } from "react";
 
 export function PageHeader({
   title,
   subtitle,
   action,
+  userName = "Adv. Ahmed",
 }: {
   title: string;
   subtitle?: string;
   action?: ReactNode;
+  userName?: string;
 }) {
-  const { name } = useCurrentUser();
   return (
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0 flex-1">
@@ -33,7 +31,7 @@ export function PageHeader({
           <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand-600" />
         </button>
         <Link href="/settings" className="hidden sm:block">
-          <Avatar name={name} size="sm" />
+          <Avatar name={userName} size="sm" />
         </Link>
       </div>
     </div>

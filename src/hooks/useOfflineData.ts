@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as offlineDb from "@/lib/offline-db";
-import { reconcileWithPending } from "@/lib/case-sync";
+import type { OutboxEntity } from "@/lib/offline-db";
+import { reconcileWithPending } from "@/lib/sync";
 import type { LegalCase, Hearing, Task, CaseDocument } from "@/lib/types";
+
+const STORE_ENTITY: Record<"cases" | "hearings" | "tasks", OutboxEntity> = {
+  cases: "case",
+  hearings: "hearing",
+  tasks: "task",
+};
 
 interface CollectionState<T> {
   data: T[];
@@ -60,14 +67,12 @@ export function useOfflineCollection<T extends { id: string }>(
       const res = await fetch(apiUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`${res.status}`);
       let fresh: T[] = await res.json();
-      // Cases specifically can have on-device writes the server hasn't
-      // seen yet (still queued in the outbox) — never let a background
-      // refresh make those disappear just because they're not in the
-      // server's response yet. Mobile storage stays the source of truth
-      // for anything still pending; the cloud is the secondary copy.
-      if (store === "cases") {
-        fresh = (await reconcileWithPending(fresh as unknown as LegalCase[])) as unknown as T[];
-      }
+      // Any of the three collections can have on-device writes the server
+      // hasn't seen yet (still queued in the outbox) — never let a
+      // background refresh make those disappear just because they're not
+      // in the server's response yet. Mobile storage stays the source of
+      // truth for anything still pending; the cloud is the secondary copy.
+      fresh = await reconcileWithPending(STORE_ENTITY[store], fresh as unknown as { id: string }[]) as unknown as T[];
       await offlineDb.replaceAll(store, fresh);
       if (mounted.current) {
         setState({ data: fresh, loading: false, isOffline: false, syncedAt: Date.now() });
@@ -166,8 +171,13 @@ export function useOfflineCaseDetail(caseId: string): CaseDetailState & { refres
       ]);
       if (!caseRes.ok) throw new Error("not found");
       const freshCase: LegalCase = await caseRes.json();
-      const allHearings: Hearing[] = hearingsRes.ok ? await hearingsRes.json() : [];
-      const allTasks: Task[] = tasksRes.ok ? await tasksRes.json() : [];
+      let allHearings: Hearing[] = hearingsRes.ok ? await hearingsRes.json() : [];
+      let allTasks: Task[] = tasksRes.ok ? await tasksRes.json() : [];
+      // Same reasoning as useOfflineCollection: don't let a hearing/task
+      // that was just created or edited offline (still queued) vanish
+      // because this fetch raced ahead of the outbox drain.
+      allHearings = await reconcileWithPending("hearing", allHearings);
+      allTasks = await reconcileWithPending("task", allTasks);
       const freshDocs: CaseDocument[] = docsRes.ok ? await docsRes.json() : [];
       const caseHearings = allHearings.filter((h) => h.caseId === caseId);
       const caseTasks = allTasks.filter((t) => t.caseId === caseId);
@@ -204,18 +214,74 @@ export function useOfflineCaseDetail(caseId: string): CaseDetailState & { refres
     // page is open (e.g. it finally reaches the server a minute after the
     // person moved on and back), pick that up from IndexedDB immediately
     // instead of showing stale data until the next navigation.
-    const onLocalChange = async () => {
+    const onCaseChange = async () => {
       const local = await offlineDb.getOne<LegalCase>("cases", caseId);
       if (mounted.current && local) setState((s) => ({ ...s, legalCase: local }));
     };
+    // A hearing or task saved offline (or synced by the outbox) writes
+    // straight to IndexedDB too — reflect that immediately rather than
+    // waiting for the next mount/network refresh to notice.
+    const onHearingsChange = async () => {
+      const local = await offlineDb.getManyByIndex<Hearing & Record<string, unknown>>(
+        "hearings",
+        "caseId",
+        caseId
+      );
+      if (mounted.current) setState((s) => ({ ...s, hearings: local as Hearing[] }));
+    };
+    const onTasksChange = async () => {
+      const local = await offlineDb.getManyByIndex<Task & Record<string, unknown>>("tasks", "caseId", caseId);
+      if (mounted.current) setState((s) => ({ ...s, tasks: local as Task[] }));
+    };
     window.addEventListener("online", onReconnect);
-    window.addEventListener("lexcase:cases-changed", onLocalChange);
+    window.addEventListener("lexcase:cases-changed", onCaseChange);
+    window.addEventListener("lexcase:hearings-changed", onHearingsChange);
+    window.addEventListener("lexcase:tasks-changed", onTasksChange);
     return () => {
       mounted.current = false;
       window.removeEventListener("online", onReconnect);
-      window.removeEventListener("lexcase:cases-changed", onLocalChange);
+      window.removeEventListener("lexcase:cases-changed", onCaseChange);
+      window.removeEventListener("lexcase:hearings-changed", onHearingsChange);
+      window.removeEventListener("lexcase:tasks-changed", onTasksChange);
     };
   }, [load, caseId]);
+
+  return { ...state, refresh: load };
+}
+
+interface RecordState<T> {
+  data: T | undefined;
+  loading: boolean;
+}
+
+/**
+ * Loads one record (a single hearing or task) IndexedDB-first, for pages
+ * that only need one item rather than a whole collection — e.g. the task
+ * edit form. Kept in sync with local writes/outbox syncs the same way
+ * useOfflineCollection is.
+ */
+export function useOfflineRecord<T extends { id: string }>(
+  store: "hearings" | "tasks",
+  id: string
+): RecordState<T> & { refresh: () => void } {
+  const [state, setState] = useState<RecordState<T>>({ data: undefined, loading: true });
+  const mounted = useRef(true);
+
+  const load = useCallback(async () => {
+    const local = await offlineDb.getOne<T>(store, id);
+    if (mounted.current) setState({ data: local, loading: false });
+  }, [store, id]);
+
+  useEffect(() => {
+    mounted.current = true;
+    load();
+    const onChange = () => load();
+    window.addEventListener(`lexcase:${store}-changed`, onChange);
+    return () => {
+      mounted.current = false;
+      window.removeEventListener(`lexcase:${store}-changed`, onChange);
+    };
+  }, [load, store]);
 
   return { ...state, refresh: load };
 }

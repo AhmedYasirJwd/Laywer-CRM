@@ -1,18 +1,28 @@
 // Service worker for LexCase.
 //
 // LexCase is a live-data, authenticated app (Supabase-backed). Most pages
-// (Settings, Drafts, Major Acts, Search, every create/edit form) stay
+// (Settings, Drafts, Major Acts, Search, Documents upload, ...) stay
 // server-rendered and online-only — deliberately not cached here.
 //
-// Nine routes have real offline support, backed by IndexedDB in the app
+// These routes have real offline support, backed by IndexedDB in the app
 // itself (see src/hooks/useOfflineData.ts) rather than by caching API
-// responses in here: Dashboard (/), Cases (/cases), Case Detail
-// (/cases/:id), New Case (/cases/new), Edit Case (/cases/:id/edit),
-// Calendar (/calendar), Tasks (/tasks). Their HTML/JS shell is identical
-// for every request with no server-embedded data (New Case) or is
-// per-URL-cached the first time it's opened online (Case Detail, Edit
-// Case — see below), so it's safe to replay if the network is unreachable
-// — the shell then reads/writes the real data straight out of IndexedDB.
+// responses in here:
+//   Dashboard (/), Cases (/cases), Case Detail (/cases/:id),
+//   New Case (/cases/new), Edit Case (/cases/:id/edit),
+//   Calendar (/calendar), Tasks (/tasks),
+//   Add Hearing — from a case (/cases/:id/hearings/new) and from the
+//     calendar (/calendar/new),
+//   Edit Hearing (/cases/:id/hearings/:hearingId/edit),
+//   Add Task (/tasks/new), Edit Task (/tasks/:id/edit).
+// Every one of these is a client component with no server-fetched data of
+// its own — the case/hearing/task data comes from IndexedDB at runtime —
+// so their HTML/JS shell is safe to replay when the network is
+// unreachable. Routes with a dynamic id in the URL (Case Detail, Edit
+// Case, Add/Edit Hearing, Edit Task) are cached per-URL the first time
+// they're opened online, PLUS a placeholder-id "template" version of each
+// is precached at install time and used to build a working shell for any
+// id that was never opened online — e.g. a hearing created entirely while
+// offline (see buildFromTemplate below).
 //
 // What this file does NOT do, on purpose:
 //   - Cache /api/* responses. Those can contain another user's-eyes-only
@@ -22,11 +32,73 @@
 //   - Cache documents/PDFs automatically — see the explicit "Download for
 //     offline" affordance in the Documents section instead.
 
-const VERSION = "v5";
+const VERSION = "v6";
 const STATIC_CACHE = `lexcase-static-${VERSION}`;
 const SHELL_CACHE = `lexcase-shell-${VERSION}`;
 
 const PRECACHE_URLS = ["/offline.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
+
+// Routes with no dynamic segment at all — identical shell for every
+// request, no template needed, just fetch-and-cache once at install.
+const STATIC_SHELL_ROUTES = ["/", "/cases", "/calendar", "/tasks", "/cases/new", "/calendar/new", "/tasks/new"];
+
+// A case created (or a hearing/task created) entirely offline gets a real
+// UUID (assigned client-side) that the server has never seen, so there's
+// no way to have warmed a cache entry for that exact URL in advance.
+// Rather than send a brand-new record straight to offline.html, we keep
+// one "template" shell per dynamic route — fetched once for these
+// placeholder ids — and stamp the real id(s) into it on the fly (see
+// buildFromTemplate). The HTML/JS besides those id strings is identical
+// for every case/hearing/task — every one of these routes is a client
+// component that reads the actual data out of IndexedDB — so the swap is
+// safe and doesn't require a network round-trip.
+const ID_PLACEHOLDER_A = "00000000-0000-4000-8000-000000000000";
+const ID_PLACEHOLDER_B = "00000000-0000-4000-8000-000000000001";
+
+// Routes with one or two dynamic segments. `match` extracts the real id(s)
+// from a live request's pathname (capture groups, in order); `template` is
+// the placeholder-id version of that same path, precached at install time;
+// `placeholders` lists which placeholder constant corresponds to each
+// capture group, in order; `exclude` filters out sibling static routes
+// that would otherwise false-match the regex (e.g. "/cases/new" matching
+// "/cases/:id").
+const DYNAMIC_SHELL_ROUTES = [
+  {
+    match: /^\/cases\/([^/]+)$/,
+    exclude: (m) => m[1] === "new",
+    template: `/cases/${ID_PLACEHOLDER_A}`,
+    placeholders: [ID_PLACEHOLDER_A],
+  },
+  {
+    match: /^\/cases\/([^/]+)\/edit$/,
+    template: `/cases/${ID_PLACEHOLDER_A}/edit`,
+    placeholders: [ID_PLACEHOLDER_A],
+  },
+  {
+    match: /^\/cases\/([^/]+)\/hearings\/new$/,
+    template: `/cases/${ID_PLACEHOLDER_A}/hearings/new`,
+    placeholders: [ID_PLACEHOLDER_A],
+  },
+  {
+    match: /^\/cases\/([^/]+)\/hearings\/([^/]+)\/edit$/,
+    template: `/cases/${ID_PLACEHOLDER_A}/hearings/${ID_PLACEHOLDER_B}/edit`,
+    placeholders: [ID_PLACEHOLDER_A, ID_PLACEHOLDER_B],
+  },
+  {
+    match: /^\/tasks\/([^/]+)\/edit$/,
+    exclude: (m) => m[1] === "new",
+    template: `/tasks/${ID_PLACEHOLDER_B}/edit`,
+    placeholders: [ID_PLACEHOLDER_B],
+  },
+];
+
+function matchDynamicRoute(pathname) {
+  for (const route of DYNAMIC_SHELL_ROUTES) {
+    const m = route.match.exec(pathname);
+    if (m && !(route.exclude && route.exclude(m))) return { route, m };
+  }
+  return null;
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -34,12 +106,14 @@ self.addEventListener("install", (event) => {
       const staticCache = await caches.open(STATIC_CACHE);
       await staticCache.addAll(PRECACHE_URLS);
 
-      // These routes' HTML/JS shell doesn't depend on any specific case's
-      // data, so — unlike Case Detail/Edit — there's no reason to wait for
-      // a first online visit before they work offline. Warm them now.
+      // These routes' HTML/JS shell doesn't depend on any specific
+      // case/hearing/task's data, so — unlike the per-id cache entries
+      // below — there's no reason to wait for a first online visit before
+      // they work offline. Warm them, and the id-template shells, now.
       const shellCache = await caches.open(SHELL_CACHE);
+      const templatePaths = DYNAMIC_SHELL_ROUTES.map((r) => r.template);
       await Promise.all(
-        ["/", "/cases", "/calendar", "/tasks", "/cases/new"].map(async (path) => {
+        [...STATIC_SHELL_ROUTES, ...templatePaths].map(async (path) => {
           try {
             const response = await fetch(path);
             if (response.ok) await shellCache.put(path, response);
@@ -80,20 +154,29 @@ function isBrandAsset(url) {
 }
 
 // The offline-enabled routes. Matched on pathname only (query strings,
-// e.g. /cases?status=Active, still match /cases).
+// e.g. /cases?status=Active or /tasks/new?caseId=..., still match).
 function isOfflineShellRoute(pathname) {
-  if (
-    pathname === "/" ||
-    pathname === "/cases" ||
-    pathname === "/calendar" ||
-    pathname === "/tasks" ||
-    pathname === "/cases/new"
-  )
-    return true;
-  const caseDetail = /^\/cases\/([^/]+)$/.exec(pathname);
-  if (caseDetail && caseDetail[1] !== "new") return true;
-  const caseEdit = /^\/cases\/([^/]+)\/edit$/.exec(pathname);
-  return Boolean(caseEdit);
+  if (STATIC_SHELL_ROUTES.includes(pathname)) return true;
+  return Boolean(matchDynamicRoute(pathname));
+}
+
+// Clones a cached template response and replaces every occurrence of the
+// placeholder id(s) with the real one(s) being requested, so a case,
+// hearing, or task that was only ever created offline still gets a working
+// shell instead of offline.html. Returns null if no template has been
+// cached yet (e.g. the service worker was installed while offline).
+async function buildFromTemplate(shellCache, templatePath, replacements) {
+  const template = await shellCache.match(templatePath);
+  if (!template) return null;
+  let text = await template.text();
+  for (const [placeholder, real] of replacements) {
+    text = text.split(placeholder).join(real);
+  }
+  return new Response(text, {
+    status: template.status,
+    statusText: template.statusText,
+    headers: template.headers,
+  });
 }
 
 self.addEventListener("fetch", (event) => {
@@ -135,12 +218,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate" && url.origin === self.location.origin) {
     // Offline-enabled routes: network-first, cache the shell on success.
-    // Cached per-URL (not collapsed to one shared key) — even though this
-    // route is a client component, Next still bakes that request's resolved
-    // route params into the initial HTML/flight payload it serves. Reusing
-    // one entry for every case id would replay a stale case's data under a
-    // different case's URL. Each case's shell is only available offline
-    // once that specific case has actually been opened while online.
+    // Dynamic routes are cached per-URL (not collapsed to one shared key)
+    // — even though these are client components, Next still bakes the
+    // request's resolved route params into the initial HTML/flight
+    // payload it serves, so reusing one entry for every id would replay a
+    // stale record's data under a different id's URL.
     if (isOfflineShellRoute(url.pathname)) {
       const cacheKey = url.pathname;
       event.respondWith(
@@ -152,16 +234,35 @@ self.addEventListener("fetch", (event) => {
             return response;
           } catch {
             const cached = await cache.match(cacheKey);
-            return cached || caches.match("/offline.html");
+            if (cached) return cached;
+
+            // No exact-URL cache entry — this id (case, hearing, or task)
+            // was never opened while online. Stamp it into the matching
+            // template shell instead of giving up, so a record created
+            // offline opens directly rather than bouncing through
+            // offline.html.
+            const dynamic = matchDynamicRoute(url.pathname);
+            if (dynamic) {
+              const { route, m } = dynamic;
+              const replacements = route.placeholders.map((placeholder, i) => [placeholder, m[i + 1]]);
+              const built = await buildFromTemplate(cache, route.template, replacements);
+              if (built) {
+                cache.put(cacheKey, built.clone());
+                return built;
+              }
+            }
+
+            return caches.match("/offline.html");
           }
         })()
       );
       return;
     }
 
-    // Every other page (Settings, Drafts, Major Acts, forms, auth, ...):
-    // online-only. Try the network; if it's unreachable, show the offline
-    // page rather than the browser's generic "No Internet" screen.
+    // Every other page (Settings, Drafts, Major Acts, Documents upload,
+    // auth, ...): online-only. Try the network; if it's unreachable, show
+    // the offline page rather than the browser's generic "No Internet"
+    // screen.
     event.respondWith(fetch(request).catch(() => caches.match("/offline.html")));
     return;
   }
