@@ -1,23 +1,28 @@
-import Link from "next/link";
+"use client";
+
 import { ArrowLeft } from "lucide-react";
-import { getCases } from "@/lib/db";
+import type { LegalCase } from "@/lib/types";
 import { HearingFormWithCaseSelect } from "@/components/HearingFormWithCaseSelect";
+import { useOfflineCollection } from "@/hooks/useOfflineData";
 
-export const dynamic = "force-dynamic";
-
-export default async function NewHearingFromCalendarPage() {
-  const cases = await getCases();
+export default function NewHearingFromCalendarPage() {
+  const { data: cases, loading } = useOfflineCollection<LegalCase>("cases", "/api/cases");
 
   return (
     <div>
       <div className="mb-5">
-        <Link href="/calendar" className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
+        {/* Plain <a>, not next/link — this page is reachable offline, and
+            "back to Calendar" needs to stay reachable offline too. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/calendar" className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
           <ArrowLeft size={17} />
           Back to Calendar
-        </Link>
+        </a>
         <h1 className="mt-2 text-xl font-bold text-ink sm:text-2xl">Schedule Hearing</h1>
       </div>
-      {cases.length === 0 ? (
+      {loading ? (
+        <div className="card h-64 animate-pulse p-5" />
+      ) : cases.length === 0 ? (
         <p className="text-sm text-muted">Create a case first before scheduling a hearing.</p>
       ) : (
         <HearingFormWithCaseSelect cases={cases} />

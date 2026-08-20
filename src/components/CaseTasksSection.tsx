@@ -1,26 +1,28 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, WifiOff } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { PriorityBadge } from "./Badge";
 import { formatDate, relativeDayLabel } from "@/lib/format";
+import { saveTask } from "@/lib/task-sync";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export function CaseTasksSection({ caseId, initialTasks }: { caseId: string; initialTasks: Task[] }) {
   const router = useRouter();
+  const isOnline = useOnlineStatus();
   const [tasks, setTasks] = useState(initialTasks);
   const [, startTransition] = useTransition();
 
+  // Toggling completion is itself just an "edit" — it goes through the
+  // same offline-aware save path as the task form, so checking a task off
+  // works with no connection too.
   async function toggleTask(task: Task) {
     const nextStatus = task.status === "Completed" ? "Pending" : "Completed";
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: nextStatus } : t)));
-    await fetch(`/api/tasks/${task.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: nextStatus }),
-    });
+    const updated: Task = { ...task, status: nextStatus };
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+    await saveTask(updated, "update", { status: nextStatus });
     startTransition(() => router.refresh());
   }
 
@@ -33,13 +35,17 @@ export function CaseTasksSection({ caseId, initialTasks }: { caseId: string; ini
   return (
     <div>
       <div className="mb-3 flex items-center justify-end">
-        <Link
+        {/* Plain <a>, not next/link — /tasks/new is offline-enabled and
+            needs a real navigation for the service worker to serve it
+            with no network. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a
           href={`/tasks/new?caseId=${caseId}`}
           className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
         >
           <Plus size={15} />
           Add Task
-        </Link>
+        </a>
       </div>
 
       {tasks.length === 0 ? (
@@ -77,20 +83,24 @@ export function CaseTasksSection({ caseId, initialTasks }: { caseId: string; ini
                     )}
                   </div>
                   {task.priority && !done && <PriorityBadge priority={task.priority} />}
-                  <Link
+                  {/* Plain <a>, not next/link — same reasoning as "Add Task" above. */}
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                  <a
                     href={`/tasks/${task.id}/edit`}
                     aria-label="Edit task"
                     className="shrink-0 text-faint hover:text-ink"
                   >
                     <Pencil size={15} />
-                  </Link>
+                  </a>
                   <button
                     type="button"
                     onClick={() => removeTask(task)}
+                    disabled={!isOnline}
                     aria-label="Delete task"
-                    className="shrink-0 text-faint hover:text-red-600"
+                    title={!isOnline ? "Requires an internet connection" : undefined}
+                    className="shrink-0 text-faint hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <Trash2 size={16} />
+                    {isOnline ? <Trash2 size={16} /> : <WifiOff size={15} />}
                   </button>
                 </div>
               );

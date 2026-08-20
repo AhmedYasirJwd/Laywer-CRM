@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ChevronRight, Pencil } from "lucide-react";
 import type { Hearing, LegalCase } from "@/lib/types";
 import { dayNumber, monthShort, formatTime, relativeDayLabel } from "@/lib/format";
@@ -35,13 +34,17 @@ export function HearingRow({ hearing, legalCase }: { hearing: Hearing; legalCase
         <ChevronRight size={16} className="shrink-0 text-faint" />
       </a>
       {legalCase && (
-        <Link
+        // Plain <a>, not next/link — the edit page is offline-enabled, and
+        // only a real navigation is guaranteed to be caught by the service
+        // worker when there's no network.
+        // eslint-disable-next-line @next/next/no-html-link-for-pages
+        <a
           href={`/cases/${legalCase.id}/hearings/${hearing.id}/edit`}
           aria-label="Edit hearing"
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint hover:bg-background hover:text-ink"
         >
           <Pencil size={14} />
-        </Link>
+        </a>
       )}
     </div>
   );
